@@ -1,3 +1,6 @@
+# demo code for control the robot (keyboard arrow use only) 
+
+
 import cv2
 import struct
 import numpy as np
