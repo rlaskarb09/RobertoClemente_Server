@@ -1,3 +1,4 @@
+# demo code for robot control (with stop signal)
 import cv2
 import struct
 import numpy as np
