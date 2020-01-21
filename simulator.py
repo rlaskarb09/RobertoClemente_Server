@@ -14,12 +14,12 @@ def pathtime(add, curr, Atime):
     Ptime = 0
     if curr != add: # next address != current address
         if curr == -1:
-            Ptime = np.sum(Atime[:add])
+            Ptime = np.sum(Atime[:add+1])
         else:
             if curr < add:
-                Ptime = np.sum(Atime[curr:add])
+                Ptime = np.sum(Atime[curr:add+1])
             else:
-                Ptime = np.sum(Atime[curr:]) + np.sum(Atime[:add])
+                Ptime = np.sum(Atime[curr:]) + np.sum(Atime[:add+1])
     return Ptime
 
 '''def Dtime(Dlist, Mtime, Atime, Alist): # total delivery time
@@ -45,19 +45,25 @@ def TperOrder(Dlist, Mtime, Atime, Address, maxitem):
     curr = -1 # stop
     for i in range(len(Dlist)):
         cust = Dlist[i]
-        if i != 0 & cust._ID != Dlist[i-1]._ID:
+        add = addtoidx(Address, cust._address)
+        if i != 0 and cust._ID != Dlist[i-1]._ID:
             timelist.append(Dtime)
             print("Delivery time of order ID {}: {}".format(Dlist[i-1]._ID, Dtime))
             Dtime = 0
-        if cust._address != curr:
+        if add != curr:
             if cust._N > maxitem:
                 cycle = int(cust._N/maxitem) - 1
-                add = addtoidx(Address, cust._address)
+                #add = addtoidx(Address, cust._address)
                 Dtime += pathtime(add, curr, Atime) + cycle * np.sum(Atime) + Mtime[0] * cust._N + Mtime[1]
                 # sum of robot driving + total load time + unload time for one item
                 curr = add
+            else:
+                #add = addtoidx(Address, cust._address)
+                Dtime += pathtime(add, curr, Atime) + Mtime[0] * cust._N + Mtime[1]
+                curr = add
         else:
             Dtime += Mtime[1] # unload an item
+    print("Delivery time of order ID {}: {}".format(Dlist[i-1]._ID, Dtime))
     return timelist
 
 def FIFO(Q, Dlist):
@@ -89,7 +95,7 @@ Address = np.asarray(a)
 # 시간 정하기
 Mtime = [2, 2, 10]
 # Mtime = [load, unload, battery change] -> load/unload per item
-Atime = [1, 2, 3, 2, 1, 3, 2] # interval between addresses
+Atime = [1, 2, 2, 3, 2, 2, 1] # interval between addresses
 Atime = np.asarray(Atime)
 '''time_0 = stop - 101
 time_1 = 101 - 102
@@ -143,7 +149,6 @@ Dlist = FIFO(Q, Dlist)
 
 timelist = TperOrder(Dlist, Mtime, Atime, Address, maxitem)
 #print("Deliver time: {}".format(Dtime))
-
 
 
 
