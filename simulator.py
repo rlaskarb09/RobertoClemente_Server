@@ -4,7 +4,7 @@ import numpy as np
 import random
 from datetime import datetime
 from customer import customer
-
+import scheduler
 
 def addtoidx(A, add):
     idx = np.where(A==add)[0][0]
@@ -66,13 +66,6 @@ def TperOrder(Dlist, Mtime, Atime, Address, maxitem):
     print("Delivery time of order ID {}: {}".format(Dlist[i-1]._ID, Dtime))
     return timelist
 
-def FIFO(Q, Dlist):
-    while Q.empty() == False:
-        cust = Q.get()
-        for n in range(cust._N):
-            Dlist.append(cust)
-    return Dlist # delivery list
-
 class orders:
     red = 0
     green = 0
@@ -108,7 +101,7 @@ time_6 = 201 - stop'''
 maxitem = 20 # cart capacity
 order_count = 3
 Q = queue.Queue()
-
+Q2 = queue.Queue()
 random.shuffle(a)
 
 CUST1 = customer(1, a[0], order_count, 30)
@@ -141,15 +134,27 @@ CUST6 = customer(6, a[5], order_count, 30)
 CUST6.makeRGB()
 Q.put(CUST6)
 
-# scheduling algorithm 대로 실험?
+Q2.put(CUST1)
+Q2.put(CUST2)
+Q2.put(CUST3)
+Q2.put(CUST4)
+Q2.put(CUST5)
+Q2.put(CUST6)
 
+
+# scheduling algorithm 대로 실험?
 Dlist = []
-Dlist = FIFO(Q, Dlist)
-#Dlist = Q
+Dlist = scheduler.FIFO(Q, Dlist)
+Dlist2 = []
+Dlist2 = scheduler.smallorder(Q2, Dlist2)
+
 
 timelist = TperOrder(Dlist, Mtime, Atime, Address, maxitem)
+#print("Deliver time: {}".format(Dtime))
 avgtime = sum(timelist)/len(timelist)
 print("Avg Deliver time: {}".format(avgtime))
 
-
-
+timelist2 = TperOrder(Dlist2, Mtime, Atime, Address, maxitem)
+#print("Deliver time: {}".format(Dtime))
+avgtime = sum(timelist2)/len(timelist2)
+print("Avg Deliver time: {}".format(avgtime))
