@@ -89,7 +89,7 @@ class orders:
         self.ordertime = datetime.now()
 
 
-a = [101,102,103,201,202,203] # address list
+a = [101,102,103,203,202,201] # address list
 Address = np.asarray(a)
 
 # 시간 정하기
@@ -148,7 +148,8 @@ Dlist = FIFO(Q, Dlist)
 #Dlist = Q
 
 timelist = TperOrder(Dlist, Mtime, Atime, Address, maxitem)
-#print("Deliver time: {}".format(Dtime))
+avgtime = sum(timelist)/len(timelist)
+print("Avg Deliver time: {}".format(avgtime))
 
 
 
