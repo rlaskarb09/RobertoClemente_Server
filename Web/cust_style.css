@@ -1,0 +1,86 @@
+h1{
+    font-family: pacificoregular;
+	font-size: 52px;
+	font-weight: normal;
+	color: ghostwhite;
+    text-align: center;
+}
+h2{
+    font-family: monospace;
+    font-size: 26px;
+    color: rgb(0,70,42);
+    text-align: center;
+}
+p{
+    font-family:sans-serif;
+/*    float:left;*/
+}
+img.fixed{
+	position:fixed;
+	float: left;
+/*    padding: 10px;*/
+}
+input.button{
+    border-top-left-radius: 5px; 
+    border-bottom-left-radius: 5px;
+    border-top-right-radius: 5px;
+    border-bottom-right-radius: 5px;
+    border: 1px solid rgb(0,70,42); 
+    color: rgb(0,70,42); 
+    padding: 5px;
+}
+input.button:hover{
+    color:white;
+    background-color:rgb(0,70,42);
+}
+.title{
+	width:100%;
+	height:150px;
+	background-color: rgb(0,70,42);
+	float:left;
+    margin-bottom: 20px;
+}
+/*
+.container{
+    overflow: hidden;
+}
+*/
+.nav{
+    float: left;
+    width: 15%;
+    background: rgb(217,217,184);
+    color: antiquewhite;
+    margin-right:50px;
+}
+.nav-list{
+    list-style: none;
+    margin: 0;
+    padding: 10px 0;
+}
+.nav-menu{
+    margin: 4px 0;
+}
+.nav-link{
+    display: block;
+    text-decoration: none;
+    padding: 4px 10px;
+}
+.nav-link:hover{
+    background:antiquewhite;
+}
+.content{
+    float:left;
+    width:80%;
+}
+.info{
+    float:right;
+    width:80%;
+    margin-left: 50px;
+}
+@font-face {
+    font-family: 'pacificoregular';
+    src: url('/Users/soua/workspace/RobertoClemente_Server/Web/pacifico_font/pacifico-webfont.woff2') format('woff2'),
+         url('/Users/soua/workspace/RobertoClemente_Server/Web/pacifico_font/pacifico-webfont.woff') format('woff');
+    font-weight: normal;
+    font-style: normal;
+}
