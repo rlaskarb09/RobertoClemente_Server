@@ -22,7 +22,7 @@ let ejs = require('ejs');
 var connection = mysql.createConnection({
     host: 'localhost',
     user: 'root',
-    password: 'ehfpalvkthf',
+    password: '',
     database: 'orderdb',
     debug: false
 });
@@ -30,9 +30,10 @@ var connection = mysql.createConnection({
 app.use(bodyParser.urlencoded({ extended: true }));
 app.use(bodyParser.json());
 app.use(bodyParser.text());
+app.use(express.static(__dirname+'/web'));
 
 app.set('view engine','ejs');
-app.set('views','./views');
+app.set('views','./web');
 
 const robotLimitTime = 8000; //ms
 const serverPort = 3000;
@@ -305,10 +306,23 @@ app.listen(serverPort, function() {
 });
 
 app.get('/',function(req,res){
-    res.render('view', {exerciseNum: moment(Date.now()).format('YYYY-MM-DD HH:mm:ss')});
+//    res.render('dashboard', {exerciseNum: moment(Date.now()).format('YYYY-MM-DD HH:mm:ss')});
+    res.render('dashboard', getMessageToDashboard());
+});
+
+app.get('/login',function(req,res){
+    res.render('custWeb_login', {exerciseNum: moment(Date.now()).format('YYYY-MM-DD HH:mm:ss'),
+                                loginLink: '/login',
+                                custLink: '/custInfo'});
     // res.render('view', getMessageToDashboard());
 });
 
+app.get('/custInfo',function(req,res){
+    res.render('custWeb_info', {exerciseNum: moment(Date.now()).format('YYYY-MM-DD HH:mm:ss'),
+                               loginLink: "/login",
+                                custLink: "/custInfo"});
+    // res.render('view', getMessageToDashboard());
+});
 
 app.get('/api/pending', function (req, res) {
     sqlMethods.getAllRows(connection, 'orders', function(err, rows) {
