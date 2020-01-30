@@ -49,7 +49,7 @@ def TperOrder(Dlist, Mtime, Atime, Address, maxitem):
         if i != 0 and cust._ID != Dlist[i-1]._ID:
             timelist.append(Dtime)
             print("Delivery time of order ID {}: {}".format(Dlist[i-1]._ID, Dtime))
-            Dtime = 0
+            #Dtime = 0
         if add != curr:
             if cust._N > maxitem:
                 cycle = int(cust._N/maxitem) - 1
@@ -63,7 +63,7 @@ def TperOrder(Dlist, Mtime, Atime, Address, maxitem):
                 curr = add
         else:
             Dtime += Mtime[1] # unload an item
-    print("Delivery time of order ID {}: {}".format(Dlist[i-1]._ID, Dtime))
+    print("Delivery time of order ID {}: {}".format(Dlist[i]._ID, Dtime))
     return timelist
 
 '''class orders:
@@ -86,6 +86,7 @@ def testFIFO(Dlist, Q):
     Dlist = scheduler.FIFO(Q, Dlist)
     timelist = TperOrder(Dlist, Mtime, Atime, Address, maxitem)
     avgtime = sum(timelist)/len(timelist)
+    #avgtime = timelist[-1] / len(timelist)
     print("Avg Deliver time: {}".format(avgtime))
 
 def testsmall(Dlist, Q):
@@ -93,6 +94,7 @@ def testsmall(Dlist, Q):
     Dlist = scheduler.smallorder(Q, Dlist)
     timelist = TperOrder(Dlist, Mtime, Atime, Address, maxitem)
     avgtime = sum(timelist)/len(timelist)
+    #avgtime = timelist[-1] / len(timelist)
     print("Avg Deliver time: {}".format(avgtime))
 
 def testSmallAdd(Dlist, Q):
@@ -100,6 +102,15 @@ def testSmallAdd(Dlist, Q):
     Dlist = scheduler.SmallandAdd(Q, Dlist)
     timelist = TperOrder(Dlist, Mtime, Atime, Address, maxitem)
     avgtime = sum(timelist)/len(timelist)
+    #avgtime = timelist[-1] / len(timelist)
+    print("Avg Deliver time: {}".format(avgtime))
+
+def testSmallandAdd2(Q, Dlist, maxitem):
+    print("-------sorted by quantity & address ver2-------")
+    Dlist = scheduler.SmallandAdd2(Q, Dlist, maxitem)
+    timelist = TperOrder(Dlist, Mtime, Atime, Address, maxitem)
+    avgtime = sum(timelist) / len(timelist)
+    # avgtime = timelist[-1] / len(timelist)
     print("Avg Deliver time: {}".format(avgtime))
 
 
@@ -125,88 +136,32 @@ order_count = 1
 Q = queue.Queue()
 Q2 = queue.Queue()
 Q3 = queue.Queue()
-seed = []
+Q4 = queue.Queue()
+seed = np.arange(100)
 maxN = 30
+CUST = np.zeros(100).tolist()
+
 
 for i in range(len(seed)):
+#for i in range(10):
     random.seed(seed[i])
-    random.shuffle(a)
+    idx = random.randint(0,5)
 
-    CUST1 = customer(i*6+1, a[0], order_count, maxN) # ID = i+1, address = a[int(i%6)]
-    #CUST1.startTIMER(Q)
-    CUST1.makeRGB(seed[i])
-    Q.put(CUST1)
-    Q2.put(CUST1)
-    Q3.put(CUST1)
+    CUST[i] = customer(i+1, a[idx], order_count, maxN) # ID = i+1, address = a[idx]
+    CUST[i].makeRGB(seed[i])
+    Q.put(CUST[i])
+    Q2.put(CUST[i])
+    Q3.put(CUST[i])
+    Q4.put(CUST[i])
 
-    CUST2 = customer(i*6+2, a[1], order_count, maxN)
-    #CUST2.startTIMER(Q)
-    CUST2.makeRGB(seed[i])
-    Q.put(CUST2)
-    Q2.put(CUST2)
-    Q3.put(CUST2)
-
-    CUST3 = customer(i*6+3, a[2], order_count, maxN)
-    #CUST3.startTIMER(Q)
-    CUST3.makeRGB(seed[i])
-    Q.put(CUST3)
-    Q2.put(CUST3)
-    Q3.put(CUST3)
-
-    CUST4 = customer(i*6+4, a[3], order_count, maxN)
-    #CUST4.startTIMER(Q)
-    CUST4.makeRGB(seed[i])
-    Q.put(CUST4)
-    Q2.put(CUST4)
-    Q3.put(CUST4)
-
-    CUST5 = customer(i*6+5, a[4], order_count, maxN)
-    #CUST5.startTIMER(Q)
-    CUST5.makeRGB(seed[i])
-    Q.put(CUST5)
-    Q2.put(CUST5)
-    Q3.put(CUST5)
-
-    CUST6 = customer(i*6+6, a[5], order_count, maxN)
-    #CUST6.startTIMER(Q)
-    CUST6.makeRGB(seed[i])
-    Q.put(CUST6)
-    Q2.put(CUST6)
-    Q3.put(CUST6)
-
-# scheduling algorithm 대로 실험?
-'''Dlist = []
-Dlist = scheduler.SmallandAdd(Q, Dlist)
-
-
-
-#Dlist = scheduler.FIFO(Q, Dlist)
-Dlist2 = []
-Dlist2 = scheduler.smallorder(Q2, Dlist2)
-
-Dlist3 = []
-Dlist3 = scheduler.FIFO(Q3, Dlist3)
-
-
-timelist = TperOrder(Dlist, Mtime, Atime, Address, maxitem)
-avgtime = sum(timelist)/len(timelist)
-print("Avg Deliver time: {}".format(avgtime))
-
-timelist2 = TperOrder(Dlist2, Mtime, Atime, Address, maxitem)
-avgtime = sum(timelist2)/len(timelist2)
-print("Avg Deliver time: {}".format(avgtime))
-
-timelist3 = TperOrder(Dlist3, Mtime, Atime, Address, maxitem)
-avgtime = sum(timelist3)/len(timelist3)
-print("Avg Deliver time: {}".format(avgtime))'''
 
 Dlist = []
 Dlist2 = []
 Dlist3 = []
+Dlist4 = []
 testFIFO(Dlist, Q)
 testsmall(Dlist2, Q2)
 testSmallAdd(Dlist3, Q3)
+testSmallandAdd2(Q4, Dlist4, maxitem)
 
 
-#if not Q.empty():
-#    testFIFO(Q)
