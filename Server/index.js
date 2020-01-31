@@ -338,7 +338,7 @@ app.listen(serverPort, function() {
 
 app.get('/',function(req,res){
 //    res.render('dashboard', {exerciseNum: moment(Date.now()).format('YYYY-MM-DD HH:mm:ss')});
-    dashboard = getMessageToDashboard();
+    dashboard = getMessageToDashboard(status);
     exerciseNum = new Date()
     dashboard['exerciseNum'] = exerciseNum.getMinutes();
     res.render('dashboard', dashboard);

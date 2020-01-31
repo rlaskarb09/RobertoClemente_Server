@@ -6,6 +6,7 @@ h1{
 	font-size: 56px;
 	color: white;
 	text-align: center;
+    margin: 10px;
 	/*background-color: rgb(0,70,42);*/
 	/*background-repeat: repeat-y;*/
 }
@@ -17,10 +18,9 @@ h2{
 }
 
 /*--------------------------For input Class--------------------------*/
-img.fixed{
-	position:local;
-	left:280px;
-	top:1px;
+#dobby {
+/*    position:fixed;*/
+	object-position: 100px;
     width:250px;
     height:auto;
 }
@@ -87,7 +87,7 @@ span.blueItem{
 
 /*--------------------------For div Class--------------------------*/
 .frame{
-	width:100%;
+	width:2530px;
 	height:1200px;
 /*    height:100%;*/
 }
@@ -102,7 +102,7 @@ span.blueItem{
 }
 .title{
 	width:100%;
-	height:8%;
+	height:10%;
 	background-color: rgb(0,70,42);
 	float:top;
 /*    border-color:#001f00;*/
@@ -118,7 +118,6 @@ span.blueItem{
 .main_Robot{
 	width:33%;		
 	height:100%;	
-/*background-color:blue;*/
 	float:left;
     border-right: 8px dashed #a36269;
 }
@@ -157,25 +156,26 @@ span.blueItem{
 
 #chart-wrapper{
     position:absolute;
-    top:100%;
-    left:40%;
+    top:60%;
+    left:5%;
 /*    transform:translate(-50%,-50%);*/
 
 }
-#chart{
+#orderChart{
     border:solid;
     border-width:0 0 2px 2px;
     border-color:#004429;
-    background: #e0e0e0;
+    background: rgb(243,243,245);
 }
 #weeks{
     margin-left:60px;
 }
 #weeks>span{
-    width: 60px;
+    width: 80px;
     display: inline-block;
     color:#004429;
     font-size:16px;
+/*    margin-left: 10px;*/
 }
 #weeks>span:before {
 content: '';
@@ -196,7 +196,7 @@ bottom: 20px;
     display:block;
     color:#004429;
     font-size:16px;
-    height:30px;
+    height:40px;
 }
 #values>span:after {
 content: '';
