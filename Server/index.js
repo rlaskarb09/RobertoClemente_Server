@@ -20,7 +20,7 @@ let ejs = require('ejs');
 var connection = mysql.createConnection({
     host: 'localhost',
     user: 'root',
-    password: '',
+    password: 'ehfpalvkthf',
     database: 'orderdb',
     debug: false
 });
@@ -46,6 +46,7 @@ let status = {
     itemsOnStop: [26, 27, 25],
     itemsOnRobot: [0, 0, 0],
     pendingOrders: 0,
+    pendingItems: 0,
     deliveredOrders: 0,
     avgDeliveryTime: 0,
     nextLoading: [0, 0, 0],
@@ -79,7 +80,7 @@ let messageToDashboard = {
 
 let inventoryManagerTimer = setInterval(function() {
     if (InventoryManagerWebSocket != null){
-        InventoryManagerWebSocket.send(JSON.stringify(getMessageToInventoryManager()));
+        InventoryManagerWebSocket.send(JSON.stringify(getMessageToInventoryManager(status)));
     } 
     // else{
     //     console.log('inventory manager not connected.');
@@ -202,7 +203,7 @@ app.ws('/inventory_manager', function(ws, req) {
             status.itemsOnStop[2] = maxItemNumbers[2] - status.itemsOnRobot[2];
         }
         console.log('stats.nextCommand: ', status.nextCommand);
-        ws.send(JSON.stringify(getMessageToInventoryManager()));
+        ws.send(JSON.stringify(getMessageToInventoryManager(status)));
     });
 });
 
@@ -291,16 +292,19 @@ app.ws('/robot', function(ws, req) {
                         sqlMethods.ordersFilldate(connection, filldate, idString, function(err, rows) {
                             sqlMethods.getPendingOrders(connection, function(err, rows) {
                                 status.pendingOrders = Number(rows[0]['COUNT(*)']);
-                                sqlMethods.getDeliveredOrders(connection, function(err, rows) {
-                                    status.deliveredOrders = Number(rows[0]['COUNT(*)']);
-                                    sqlMethods.getAvgDeliveryTime(connection, function(err, rows) {
-                                        status.avgDeliveryTime = Number(rows[0]['AVG(filldate-orderdate)']);
-                                        var messageToRobot = {command: status.nextCommand, path: deliveryPath};
-                                        ws.send(JSON.stringify(messageToRobot));
-                                        status.nextCommand = 'empty';    
+                                sqlMethods.getPendingItems(connection, function(err, rows) {
+                                    status.pendingItems = Number(rows[0]['COUNT(*)']);
+                                    sqlMethods.getDeliveredOrders(connection, function(err, rows) {
+                                        status.deliveredOrders = Number(rows[0]['COUNT(*)']);
+                                        sqlMethods.getAvgDeliveryTime(connection, function(err, rows) {
+                                            status.avgDeliveryTime = Number(rows[0]['AVG(filldate-orderdate)']);
+                                            var messageToRobot = {command: status.nextCommand, path: deliveryPath};
+                                            ws.send(JSON.stringify(messageToRobot));
+                                            status.nextCommand = 'empty';    
+                                        });
                                     });
-                                })
-                            })
+                                });
+                            });
                         });
                     });
                 }

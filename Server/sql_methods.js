@@ -121,8 +121,26 @@ function orderedItemsFilldateByAddress(connection, filldate, address, callback) 
 }
 
 function getAvgDeliveryTime(connection, callback) {
-    var query = "SELECT AVG(?? - ??) from ?? WHERE ??=?";
+    var query = "SELECT AVG(??-??) from ?? WHERE ??=?";
     var params = ["filldate", "orderdate", "orders", "pending", 0];
+    query = mysql.format(query, params);
+    connection.query(query, function(err, rows) {
+        callback(err, rows);
+    });
+}
+
+function getPendingItems(connection, callback) {
+    var query = "SELECT COUNT(*) from ?? WHERE ??=?";
+    var params = ["ordered_items", "filldate", "0000-00-00"];
+    query = mysql.format(query, params);
+    connection.query(query, function(err, rows) {
+        callback(err, rows);
+    });
+}
+
+function getDeliveredItems(connection, callback) {
+    var query = "SELECT COUNT(*) from ?? WHERE ?? != ?";
+    var params = ["ordered_items", "filldate", "0000-00-00"];
     query = mysql.format(query, params);
     connection.query(query, function(err, rows) {
         callback(err, rows);
@@ -141,3 +159,5 @@ module.exports.ordersFilldate = ordersFilldate;
 module.exports.ordersFilldateByAddress = ordersFilldateByAddress;
 module.exports.orderedItemsFilldateByAddress = orderedItemsFilldateByAddress;
 module.exports.getAvgDeliveryTime = getAvgDeliveryTime;
+module.exports.getPendingItems = getPendingItems;
+module.exports.getDeliveredItems = getDeliveredItems;
