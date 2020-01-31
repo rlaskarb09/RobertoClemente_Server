@@ -13,16 +13,14 @@ var InventoryManagerWebSocket = null;
 var isFirstOrder = true;
 
 var deliverying = null;
-var deliverySchedule = null;
-var nextPath = null;
-var deliveryItems = null;
+
 
 const sqlMethods = require('./sql_methods.js');
 let ejs = require('ejs');
 var connection = mysql.createConnection({
     host: 'localhost',
     user: 'root',
-    password: '!',
+    password: '',
     database: 'orderdb',
     debug: false
 });
@@ -49,12 +47,16 @@ let status = {
     itemsOnRobot: [0, 0, 0],
     pendingOrders: 0,
     deliveredOrders: 0,
-    avgDeliveryTime: 0
+    avgDeliveryTime: 0,
+    nextLoading: [0, 0, 0],
+    needReschedule: true,
+    deliverySchedule: {},
+    deliveryItems: []
 };
 
 let messageToInventoryManager = {
     robotMode: 'stop',
-    'deliverySchedule': {},
+    deliverySchedule: {},
     itemsOnStop: [26, 27, 25],
     itemsOnRobot: [0, 0, 0],
     pendingOrders: 0,
@@ -84,21 +86,23 @@ let inventoryManagerTimer = setInterval(function() {
     // }
 }, 1000);
 
-
-function getMessageToInventoryManager() {
+function getMessageToRobot(status) {
     return {
-        robotMode: status.robotMode, 
-        robotLocation: status.robotLocation,
-        'deliverySchedule': deliverySchedule,
-        itemsOnStop: status.itemsOnStop, 
-        itemsOnRobot: status.itemsOnRobot,
-        pendingOrders: status.pendingOrders, 
-        deliveredOrders: status.deliveredOrders, 
-        avgDeliveryTime: status.avgDeliveryTime
+        command: status.nextCommand, 
+        path: status.robotPath
     };
 }
 
-function getMessageToDashboard() {
+function getMessageToInventoryManager(status) {
+    return {
+        robotMode: status.robotMode, 
+        robotLocation: status.robotLocation,
+        deliverySchedule: status.deliverySchedule,
+        nextLoading: status.nextLoading
+    };
+}
+
+function getMessageToDashboard(status) {
     return {
         itemsOnStop: status.itemsOnStop,
         itemsOnRobot: status.itemsOnRobot,
@@ -109,6 +113,19 @@ function getMessageToDashboard() {
     };
 }
 
+// get nextLoading from deliverySchedule
+function getNextLoading(deliverySchedule_) {
+    var nextLoading = [0, 0, 0];
+    Object.keys(deliverySchedule_).forEach(key => {
+        nextLoading[0] += deliverySchedule_[key][0];        
+        nextLoading[1] += deliverySchedule_[key][1];
+        nextLoading[2] += deliverySchedule_[key][2];
+    });
+
+    return nextLoading;
+}
+
+// Get Priority of the address
 function getPriority(a) {
     numbered = Number(a);
     switch (numbered) {
@@ -132,37 +149,34 @@ function addressCompare(a, b) {
 }
 
 function getFIFOSchedule(callback) {
-    // if (isFirstOrder) {
-    //     setTimeout(function() {isFirstOrder = false}, 1000);
-    //     return null;
-    // } else {
-        sqlMethods.getItemsToDeliver(connection, function(err, rows) {
-            rows.sort(addressCompare);
-            deliveryItems = rows;
-            var deliverySchedule = {};
-            for (var i = 0; i < deliveryItems.length; i++) {
-                if (!(deliveryItems[i].address in deliverySchedule)) {
-                    deliverySchedule[deliveryItems[i].address] = [0,0,0];
-                }
-                if (deliveryItems[i].color == 'R') {
-                    deliverySchedule[deliveryItems[i].address][0] += 1;
-                } else if (deliveryItems[i].color == 'G') {
-                    deliverySchedule[deliveryItems[i].address][1] += 1;
-                } else if (deliveryItems[i].color == 'B') {
-                    deliverySchedule[deliveryItems[i].address][2] += 1;
-                }
+    sqlMethods.getItemsToDeliver(connection, function(err, rows) {
+        rows.sort(addressCompare);
+        status.deliveryItems = rows;
+        var deliverySchedule_ = {};
+        for (var i = 0; i < status.deliveryItems.length; i++) {
+            if (!(status.deliveryItems[i].address in deliverySchedule_)) {
+                deliverySchedule_[status.deliveryItems[i].address] = [0,0,0];
             }
-            console.log('deliverySchedule at getFIFOSchedule:', deliverySchedule);
-            callback(deliverySchedule);
-        });
-    // }
+            if (status.deliveryItems[i].color == 'R') {
+                deliverySchedule_[status.deliveryItems[i].address][0] += 1;
+            } else if (status.deliveryItems[i].color == 'G') {
+                deliverySchedule_[status.deliveryItems[i].address][1] += 1;
+            } else if (status.deliveryItems[i].color == 'B') {
+                deliverySchedule_[status.deliveryItems[i].address][2] += 1;
+            }
+        }
+        console.log('deliverySchedule at getFIFOSchedule:', deliverySchedule_);
+        callback(deliverySchedule_);
+    });
 }
+
 
 // function updateFillDate()
 // {
 
 //     var datetime = new Date().toLocaleString();
 // }
+
 connection.connect();
 
 app.ws('/inventory_manager', function(ws, req) {
@@ -195,8 +209,9 @@ app.ws('/inventory_manager', function(ws, req) {
 app.ws('/robot', function(ws, req) {
     // when received the message
     robotWebSocket = ws;
+
     ws.on('message', function(msg) {
-        var nextPath = []
+        var deliveryPath = [];
         // Clear the timer
         // clearInterval(robotConnectionTimer);
         // robotConnectionTimer = setInterval(function() {
@@ -211,85 +226,99 @@ app.ws('/robot', function(ws, req) {
         console.log('status.robotMode: ', status.robotMode, ' robotStatus.mode: ', robotStatus.mode);
         console.log('From robot: ', msg);
         
-        // The robot is stopped on the stop sign
-        if (status.robotMode == 'stop' && status.robotLocation=='stop'){
-            // When the robot is on the stop sign, and unload button is pressed.
-
+        if (status.robotMode == 'stop') {
+            // Robot is stopped on the stop sign
+            if (status.robotLocation == 'stop') {
             // When the load button is pressed, calculate the number of items on the robot and stop sign.
-            if (status.pendingOrders > 0  && status.nextCommand == 'startDelivery') {
-                for (addr in deliverySchedule) {
-                    status.itemsOnStop[0] -= deliverySchedule[addr][0];
-                    status.itemsOnStop[1] -= deliverySchedule[addr][1];
-                    status.itemsOnStop[2] -= deliverySchedule[addr][2];
-                    status.itemsOnRobot[0] += deliverySchedule[addr][0];
-                    status.itemsOnRobot[1] += deliverySchedule[addr][1];
-                    status.itemsOnRobot[2] += deliverySchedule[addr][2];
-                }
-                // Send message to the robot.
-                var messageToRobot = {command: status.nextCommand, path: status.robotPath};
-                ws.send(JSON.stringify(messageToRobot));
-                status.nextCommand = 'empty';
-            } else if (status.nextCommand == 'empty') {
-                getFIFOSchedule(function(deliverySchedule_) {
-                    deliverySchedule = deliverySchedule_
-                    console.log('deliverySchedule: ', deliverySchedule)
-                    nextPath = Object.keys(deliverySchedule);
-                    nextPath.push('stop');
-                    status.robotPath = nextPath;
-                    console.log(status);
+                if (status.pendingOrders > 0  && status.nextCommand == 'startDelivery') {
+                    for (addr in status.deliverySchedule) {
+                        status.itemsOnStop[0] -= status.deliverySchedule[addr][0];
+                        status.itemsOnStop[1] -= status.deliverySchedule[addr][1];
+                        status.itemsOnStop[2] -= status.deliverySchedule[addr][2];
+                        status.itemsOnRobot[0] += status.deliverySchedule[addr][0];
+                        status.itemsOnRobot[1] += status.deliverySchedule[addr][1];
+                        status.itemsOnRobot[2] += status.deliverySchedule[addr][2];
+                    }
                     // Send message to the robot.
-                    var messageToRobot = {command: status.nextCommand, path: status.robotPath};
-                    ws.send(JSON.stringify(messageToRobot));
+                    ws.send(JSON.stringify(getMessageToRobot(status)));
                     status.nextCommand = 'empty';
-                });
+                }
+                // When the nextCommand is empty, do scheduling.
+                else if (status.nextCommand == 'empty' && status.needReschedule) {
+                    getFIFOSchedule(function(deliverySchedule_) {
+                        status.deliverySchedule = deliverySchedule_
+                        console.log('deliverySchedule: ', status.deliverySchedule)
+                        deliveryPath = Object.keys(status.deliverySchedule);
+                        deliveryPath.push('stop');
+                        status.robotPath = deliveryPath;
+                        // Send message to the robot.
+                        ws.send(JSON.stringify(getMessageToRobot(status)));
+                        status.nextCommand = 'empty';
+                        status.needReschedule = false;
+                        status.nextLoading = getNextLoading(status.deliverySchedule);
+                    });
+                }
+                else {
+                    // Send message to the robot.                    
+                    ws.send(JSON.stringify(getMessageToRobot(status)));
+                    status.nextCommand = 'empty';
+                }
             }
+            // Robot is stopped next to the address
             else {
-                // Send message to the robot.
-                
-                var messageToRobot = {command: status.nextCommand, path: nextPath};
-                ws.send(JSON.stringify(messageToRobot));
-                status.nextCommand = 'empty';
+                // when unload button is pressed, update the ordered_items table.
+                if (status.nextCommand == 'move' && status.robotPath.includes(status.robotLocation)){
+                    var idString = "(";
+                    var isFirst = true;
+                    status.deliveryItems.forEach(obj => {
+                        if (String(obj.address) === status.robotLocation) {
+                            if (isFirst) {
+                                isFirst = false;
+                                idString += String(obj.id);
+                            } else {
+                                idString += ", " + obj.id; 
+                            }
+                        }
+                    });
+                    idString += ")";
+                    // minus the number of items on the robot
+                    status.itemsOnRobot[0] -= status.deliverySchedule[status.robotLocation][0];
+                    status.itemsOnRobot[1] -= status.deliverySchedule[status.robotLocation][1];
+                    status.itemsOnRobot[2] -= status.deliverySchedule[status.robotLocation][2];
+                    var filldate = moment(Date.now()).format('YYYY-MM-DD HH:mm:ss');
+                    console.log(filldate)
+                    sqlMethods.orderedItemsFilldateById(connection, filldate, idString, function(err, rows) {
+                        sqlMethods.ordersFilldate(connection, filldate, idString, function(err, rows) {
+                            sqlMethods.getPendingOrders(connection, function(err, rows) {
+                                status.pendingOrders = Number(rows[0]['COUNT(*)']);
+                                sqlMethods.getDeliveredOrders(connection, function(err, rows) {
+                                    status.deliveredOrders = Number(rows[0]['COUNT(*)']);
+                                    // Send message to the robot.
+                                    var messageToRobot = {command: status.nextCommand, path: deliveryPath};
+                                    ws.send(JSON.stringify(messageToRobot));
+                                    status.nextCommand = 'empty';
+                                })
+                            })
+                        });
+                    });
+                }
+                else {
+                    // Send message to the robot.
+                    ws.send(JSON.stringify(getMessageToRobot(status)));
+                    status.nextCommand = 'empty';
+                }
             }
         }
-        // when unload button is pressed, update the ordered_items table.
-        else if (status.nextCommand == 'move' && status.robotPath.includes(status.robotLocation)){
-            var idString = "(";
-            var isFirst = true;
-            deliveryItems.forEach(obj => {
-                if (String(obj.address) === status.robotLocation) {
-                    if (isFirst) {
-                        isFirst = false;
-                        idString += String(obj.id);
-                    } else {
-                        idString += ", " + obj.id; 
-                    }
-                }
-            });
-            idString += ")";
-            // minus the number of items on the robot
-            status.itemsOnRobot[0] -= deliverySchedule[status.robotLocation][0];
-            status.itemsOnRobot[1] -= deliverySchedule[status.robotLocation][1];
-            status.itemsOnRobot[2] -= deliverySchedule[status.robotLocation][2];
-            var filldate = moment(Date.now()).format('YYYY-MM-DD HH:mm:ss');
-            console.log(filldate)
-            sqlMethods.orderedItemsFilldateById(connection, filldate, idString, function(err, rows) {
-                sqlMethods.ordersFilldate(connection, filldate, idString, function(err, rows) {
-                    sqlMethods.getPendingOrders(connection, function(err, rows) {
-                        status.pendingOrders = Number(rows[0]['COUNT(*)']);
-                        sqlMethods.getDeliveredOrders(connection, function(err, rows) {
-                            status.deliveredOrders = Number(rows[0]['COUNT(*)']);
-                            // Send message to the robot.
-                            var messageToRobot = {command: status.nextCommand, path: nextPath};
-                            ws.send(JSON.stringify(messageToRobot));
-                            status.nextCommand = 'empty';
-                        })
-                    })
-                });
-            });
-        } else {
+        else if (status.robotMode == 'move') {
+            status.needReschedule = true;
             // Send message to the robot.
-            var messageToRobot = {command: status.nextCommand, path: nextPath};
-            ws.send(JSON.stringify(messageToRobot));
+            ws.send(JSON.stringify(getMessageToRobot(status)));
+            status.nextCommand = 'empty';
+        }
+        else if (status.robotMode == 'maintenance') {
+            status.needReschedule = true;
+            // Send message to the robot.
+            ws.send(JSON.stringify(getMessageToRobot(status)));
             status.nextCommand = 'empty';
         }
     });
@@ -343,11 +372,10 @@ app.post('/api/neworder', function (req, res) {
     status.pendingOrders += 1;
     sqlMethods.addOrder(connection, req.body.customer, req.body.red, req.body.blue, req.body.green, req.body.address,
     function(err, rows) {
+        status.needReschedule = true;
         if (err) {
-            console.log('Error!')
             res.json({"Error" : true, "Message" : "Error executing MySQL query"});
         } else {
-            console.log('Added successfully!')
             res.json({"Error" : false, "Message" : "User Added !"});
         }
         sqlMethods.addOrderedItems(connection, rows.insertId, req.body.red, req.body.blue, req.body.green,

@@ -38,11 +38,11 @@ class customer:
 
         return timer_list  
 
-    def makeRGB(self): 
-        
+    def makeRGB(self, s):
+        #random.seed(10)
         N = random.randint(1, self._max_block) 
         mu = [1/3, 1/3, 1/3]
-        rv = multinomial(N,mu) 
+        rv = multinomial(N,mu, seed=s)
         X = rv.rvs(1)
       
         self._RED = X[0][0] 
