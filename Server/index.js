@@ -20,7 +20,7 @@ let ejs = require('ejs');
 var connection = mysql.createConnection({
     host: 'localhost',
     user: 'root',
-    password: '',
+    password: 'ehfpalvkthf',
     database: 'orderdb',
     debug: false
 });
@@ -293,10 +293,12 @@ app.ws('/robot', function(ws, req) {
                                 status.pendingOrders = Number(rows[0]['COUNT(*)']);
                                 sqlMethods.getDeliveredOrders(connection, function(err, rows) {
                                     status.deliveredOrders = Number(rows[0]['COUNT(*)']);
-                                    // Send message to the robot.
-                                    var messageToRobot = {command: status.nextCommand, path: deliveryPath};
-                                    ws.send(JSON.stringify(messageToRobot));
-                                    status.nextCommand = 'empty';
+                                    sqlMethods.getAvgDeliveryTime(connection, function(err, rows) {
+                                        status.avgDeliveryTime = Number(rows[0]['AVG(filldate-orderdate)']);
+                                        var messageToRobot = {command: status.nextCommand, path: deliveryPath};
+                                        ws.send(JSON.stringify(messageToRobot));
+                                        status.nextCommand = 'empty';    
+                                    });
                                 })
                             })
                         });
