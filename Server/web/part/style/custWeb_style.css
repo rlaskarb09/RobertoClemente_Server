@@ -75,8 +75,7 @@ input.button:hover{
 .nav{
     float: left;
     width: 15%;
-    background: rgb(217,217,184);
-    color: antiquewhite;
+    background: #d59096;
     margin-right:50px;
     font-size:20px;
 }
@@ -92,9 +91,10 @@ input.button:hover{
     display: block;
     text-decoration: none;
     padding: 4px 10px;
+    color:white;
 }
 .nav-link:hover{
-    background:antiquewhite;
+    background:#ffc1c8;
 }
 .content{
 /*    float:left;*/

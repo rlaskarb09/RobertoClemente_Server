@@ -22,7 +22,7 @@ let ejs = require('ejs');
 var connection = mysql.createConnection({
     host: 'localhost',
     user: 'root',
-    password: '',
+    password: '!',
     database: 'orderdb',
     debug: false
 });
@@ -104,7 +104,8 @@ function getMessageToDashboard() {
         itemsOnRobot: status.itemsOnRobot,
         pendingOrders: status.pendingOrders,
         deliveredOrders: status.deliveredOrders,
-        avgDeliveryTime: status.avgDeliveryTime
+        avgDeliveryTime: status.avgDeliveryTime,
+        totalOrders: status.pendingOrders + status.deliveredOrders
     };
 }
 
@@ -162,7 +163,6 @@ function getFIFOSchedule(callback) {
 
 //     var datetime = new Date().toLocaleString();
 // }
-
 connection.connect();
 
 app.ws('/inventory_manager', function(ws, req) {
@@ -307,7 +307,10 @@ app.listen(serverPort, function() {
 
 app.get('/',function(req,res){
 //    res.render('dashboard', {exerciseNum: moment(Date.now()).format('YYYY-MM-DD HH:mm:ss')});
-    res.render('dashboard', getMessageToDashboard());
+    dashboard = getMessageToDashboard();
+    exerciseNum = new Date()
+    dashboard['exerciseNum'] = exerciseNum.getMinutes();
+    res.render('dashboard', dashboard);
 });
 
 app.get('/login',function(req,res){

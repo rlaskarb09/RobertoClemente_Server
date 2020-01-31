@@ -13,15 +13,20 @@
 				<h1>Roberto Clemente</h1>
 				<img src="./part/style/dobby_title.png" class='fixed'>
 			</div>
-            <div class="container">
+            <!-- title class end -->
+            
+            <div class="INFO_container">
                 <div class="main_Order">
                     <h2>Order</h2>
+                    <p class="info">Total Order : <span class="total"><%= totalOrders %></span></p>
+                    <br/>
                     <p class="info">Backlog : <span class="backlog"><%= pendingOrders %></span></p>
+                    <br/>
                     <p class="info">Throughput : <span class="throughput"><%= deliveredOrders %></span></p>
-                    <p class="info">Graph</p>
 			     </div>
+                <!-- Order class end -->
                 <div class="main_Robot">
-                    <h2>Robot</h2>
+                    <h2>Item</h2>
                     <p class="info">Remaining items on Inventory</p>
                     <p class="info">R : <span class="redItem"><%= itemsOnStop[0] %></span> &nbsp;
                         G : <span class="greenItem"><%= itemsOnStop[1] %></span> &nbsp;
@@ -32,14 +37,115 @@
                         G : <span class="greenItem"><%= itemsOnRobot[1] %></span> &nbsp;
                         B : <span class="blueItem"><%= itemsOnRobot[2]%></span></p>
                 </div>
+                <!-- Robot class end -->
                 <div class="main_Others">
                     <h2>Others</h2>
-                    <p class="info">Battery Time</p>
+                    <div class="main_battery">
+                        <h2></h2>
+                        <p class="battery" id ="first">First battery</p>
+                        <button type="submit" class="btn_time" onclick="time()">START</button>
+                        <button type="submit" class="btn_time">END</button>
+                        <br/>
+                        <p class="battery">Second battery &nbsp;
+                            <button type="submit" class="btn_time">START</button>
+                            <button type="submit" class="btn_time">END</button>
+                        </p>
+                        <br/>
+                        <p class="battery">Third battery &nbsp;&nbsp;&nbsp;&nbsp;
+                            <button type="submit" class="btn_time">START</button>
+                            <button type="submit" class="btn_time">END</button>
+                        </p>
+                    </div>
+                    
                 </div>
+                <!-- Others class end -->
             </div>
+            <!-- INFO_container end -->
+            
+            <div class="GRAPH_container">
+                <div class="order_graph">
+                    <h2>Order Graph</h2>
+                    <div id="chart-wrapper">
+                        <div id="values"></div>
+                        <canvas id="chart"></canvas>
+                        <div id="weeks"></div>
+                    </div>
+                </div>
+                <!-- order_graph class end -->
+                <div class="time_graph">
+                    <h2>Time Graph</h2>
+                    
+                </div>
+                <!-- time_graph class end -->
+            </div>
+            <!-- GRAPH_container end -->
+            
 			<div class="footer">
                 <p class="copyright">&copy;Roberto Clemente</p>
             </div>	
+            <!-- footer class end -->
         </div>
+        <script>
+            function time(){
+                document.getElementById('first').innerHTML = 'First battery  :  ' + <%= exerciseNum %>;
+            }
+            
+            var chart = document.getElementById("chart").getContext("2d");
+
+            chart.canvas.width = "700";
+            chart.canvas.height = "300";
+
+            var cw = chart.canvas.width;
+            var ch = chart.canvas.height;
+
+            var w = [0,cw/12,2*(cw/12),3*(cw/12),4*(cw/12),5*(cw/12),6*(cw/12),7*(cw/12),8*(cw/12),9*(cw/12),10*(cw/12),11*(cw/12),12*(cw/12)];
+
+            var h = [ch,ch-ch/10,ch-2*(ch/10),ch-3*(ch/10),ch-4*(ch/10),ch-5*(ch/10),ch-6*(ch/10),ch-7*(ch/10),ch-8*(ch/10),ch-9*(ch/10),ch-10*(ch/10)];
+
+            var weeks = ['5','10','15','20','25','30','35','40','45','50','55'];
+            var values = [10,20,30,40,50,60,70,80,90,100];
+            var val = [];
+
+            for(var i = 0;i<weeks.length;i++){
+                var week = document.createElement('span');
+                var text = document.createTextNode(weeks[i])
+                week.appendChild(text);
+                document.getElementById('weeks').appendChild(week);
+            }
+
+            for(var i = values.length-1;i>=0;i--){
+                var value = document.createElement('span');
+                var text_value = document.createTextNode(values[i])
+                value.appendChild(text_value);
+                document.getElementById('values').appendChild(value);
+            }
+
+            var ch = document.getElementById("chart");
+            chart.beginPath();
+
+            //actual graph      
+            for(var i =0;i<w.length;i++){
+                chart.moveTo(0, ch);
+                chart.strokeStyle = '#004429';
+                chart.lineWidth = 2;
+                chart.lineTo(w[i], h[Math.floor((Math.random() * 9) + 1)]);
+                chart.stroke();
+            }
+
+            chart.beginPath();
+            for(var i =0;i<w.length;i++){
+                chart.moveTo(0, ch);
+                chart.strokeStyle = '#d59096';
+                chart.lineWidth = 2;
+                chart.lineTo(w[i], h[Math.floor((Math.random() * 9) + 1)]);
+                chart.stroke();
+            }
+            
+            var beforex = document.querySelector('#weeks>span:before');
+
+            for(var i = 1;i<w.length;i++){
+                beforex.style.marginLeft = w[i];
+            }
+        </script>
 	</body>
 </html>
