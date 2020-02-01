@@ -19,10 +19,9 @@
                 <div class="main_Order">
                     <h2>Order</h2>
                     <p class="info">Total Order : <span class="total"><%= totalOrders %></span></p>
-                    <br/>
-                    <p class="info">Backlog : <span class="backlog"><%= pendingOrders %></span></p>
-                    <br/>
                     <p class="info">Throughput : <span class="throughput"><%= deliveredOrders %></span></p>
+                    <p class="info">Backlog : <span class="backlog"><%= pendingOrders %></span></p>
+                    <p class="info">Backlog Items : <span class="backlog"><%= pendingItems%></span></p>
 			     </div>
                 <!-- Order class end -->
                 <div class="main_Robot">
@@ -66,16 +65,20 @@
             <div class="GRAPH_container">
                 <div class="order_graph">
                     <h2>Order Graph</h2>
-                    <div id="chart-wrapper">
+                    <div id="orderChart-wrapper">
                         <div id="values"></div>
                         <canvas id="orderChart"></canvas>
-                        <div id="weeks"></div>
+                        <div id="mins"></div>
                     </div>
                 </div>
                 <!-- order_graph class end -->
                 <div class="time_graph">
                     <h2>Time Graph</h2>
-                    
+                    <div id="timeChart-wrapper">
+                        <div id="times"></div>
+                        <canvas id="timeChart"></canvas>
+                        <div id="mins"></div>
+                    </div>
                 </div>
                 <!-- time_graph class end -->
             </div>
