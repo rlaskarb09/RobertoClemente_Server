@@ -10,10 +10,6 @@ var moment = require("moment");
 
 var robotWebSocket = null;
 var InventoryManagerWebSocket = null;
-var isFirstOrder = true;
-
-var deliverying = null;
-
 
 const sqlMethods = require('./sql_methods.js');
 let ejs = require('ejs');
@@ -41,7 +37,6 @@ let exerciseNum = 10;
 
 let status = {
     robotMode:'stop',
-    robotPath: [],
     nextCommand: 'empty',
     itemsOnStop: [26, 27, 25],
     itemsOnRobot: [0, 0, 0],
@@ -49,10 +44,16 @@ let status = {
     pendingItems: 0,
     deliveredOrders: 0,
     avgDeliveryTime: 0,
-    nextLoading: [0, 0, 0],
     needReschedule: true,
+    // updated when the robot is on the stop sign
     deliverySchedule: {},
-    deliveryItems: []
+    deliveryItems: [],
+    robotPath: [],
+    // updated while scheduling
+    nextDeliverySchedule: {},
+    nextDeliveryItems: [],
+    nextRobotPath: [],
+    nextLoading: [0, 0, 0]
 };
 
 let messageToInventoryManager = {
@@ -108,6 +109,7 @@ function getMessageToDashboard(status) {
         itemsOnStop: status.itemsOnStop,
         itemsOnRobot: status.itemsOnRobot,
         pendingOrders: status.pendingOrders,
+        pendingItems: status.pendingItems,
         deliveredOrders: status.deliveredOrders,
         avgDeliveryTime: status.avgDeliveryTime,
         totalOrders: status.pendingOrders + status.deliveredOrders
@@ -152,18 +154,18 @@ function addressCompare(a, b) {
 function getFIFOSchedule(callback) {
     sqlMethods.getItemsToDeliver(connection, function(err, rows) {
         rows.sort(addressCompare);
-        status.deliveryItems = rows;
+        status.nextDeliveryItems = rows;
         var deliverySchedule_ = {};
-        for (var i = 0; i < status.deliveryItems.length; i++) {
-            if (!(status.deliveryItems[i].address in deliverySchedule_)) {
-                deliverySchedule_[status.deliveryItems[i].address] = [0,0,0];
+        for (var i = 0; i < status.nextDeliveryItems.length; i++) {
+            if (!(status.nextDeliveryItems[i].address in deliverySchedule_)) {
+                deliverySchedule_[status.nextDeliveryItems[i].address] = [0,0,0];
             }
-            if (status.deliveryItems[i].color == 'R') {
-                deliverySchedule_[status.deliveryItems[i].address][0] += 1;
-            } else if (status.deliveryItems[i].color == 'G') {
-                deliverySchedule_[status.deliveryItems[i].address][1] += 1;
-            } else if (status.deliveryItems[i].color == 'B') {
-                deliverySchedule_[status.deliveryItems[i].address][2] += 1;
+            if (status.nextDeliveryItems[i].color == 'R') {
+                deliverySchedule_[status.nextDeliveryItems[i].address][0] += 1;
+            } else if (status.nextDeliveryItems[i].color == 'G') {
+                deliverySchedule_[status.nextDeliveryItems[i].address][1] += 1;
+            } else if (status.nextDeliveryItems[i].color == 'B') {
+                deliverySchedule_[status.nextDeliveryItems[i].address][2] += 1;
             }
         }
         console.log('deliverySchedule at getFIFOSchedule:', deliverySchedule_);
@@ -222,6 +224,22 @@ app.ws('/robot', function(ws, req) {
 
         // Get robot status
         var robotStatus = JSON.parse(msg);
+        if (status.robotMode != robotStatus.mode && status.needReschedule == true)
+        {
+            getFIFOSchedule(function(deliverySchedule_) {
+                status.nextDeliverySchedule = deliverySchedule_;
+                deliveryPath = Object.keys(status.deliverySchedule);
+                deliveryPath.push('stop');
+                status.nextRobotPath = deliveryPath;
+                // Send message to the robot.
+                status.needReschedule = false;
+                status.nextLoading = getNextLoading(status.nextDeliverySchedule);
+                console.log('ws(/robot).onmessage: nextDeliverySchedule: ', status.nextDeliverySchedule);
+                console.log('ws(/robot).onmessage: nextLoading: ', status.nextLoading);
+                console.log('ws(/robot).onmessage: nextRobotPath: ', status.nextRobotPath);
+                console.log('ws(/robot).onmessage: needReschedule: ', status.needReschedule);
+            });
+        }
         status.robotMode = robotStatus.mode;
         status.robotLocation = robotStatus.location;
         console.log('status.robotMode: ', status.robotMode, ' robotStatus.mode: ', robotStatus.mode);
@@ -230,7 +248,10 @@ app.ws('/robot', function(ws, req) {
         if (status.robotMode == 'stop') {
             // Robot is stopped on the stop sign
             if (status.robotLocation == 'stop') {
-            // When the load button is pressed, calculate the number of items on the robot and stop sign.
+                status.deliverySchedule = Array.from(status.nextDeliverySchedule);
+                status.deliveryItems = JSON.parse(JSON.stringify(status.nextDeliveryItems)) ;
+                status.robotPath = Array.from(status.nextRobotPath);
+                // When the load button is pressed, calculate the number of items on the robot and stop sign.
                 if (status.pendingOrders > 0  && status.nextCommand == 'startDelivery') {
                     for (addr in status.deliverySchedule) {
                         status.itemsOnStop[0] -= status.deliverySchedule[addr][0];
@@ -246,18 +267,7 @@ app.ws('/robot', function(ws, req) {
                 }
                 // When the nextCommand is empty, do scheduling.
                 else if (status.nextCommand == 'empty' && status.needReschedule) {
-                    getFIFOSchedule(function(deliverySchedule_) {
-                        status.deliverySchedule = deliverySchedule_
-                        console.log('deliverySchedule: ', status.deliverySchedule)
-                        deliveryPath = Object.keys(status.deliverySchedule);
-                        deliveryPath.push('stop');
-                        status.robotPath = deliveryPath;
-                        // Send message to the robot.
-                        ws.send(JSON.stringify(getMessageToRobot(status)));
-                        status.nextCommand = 'empty';
-                        status.needReschedule = false;
-                        status.nextLoading = getNextLoading(status.deliverySchedule);
-                    });
+
                 }
                 else {
                     // Send message to the robot.                    
