@@ -214,6 +214,7 @@ app.ws('/robot', function(ws, req) {
     robotWebSocket = ws;
 
     ws.on('message', function(msg) {
+        console.log((performance.now() / 1000.0), 'From robot: ', msg);
         var deliveryPath = [];
         // Clear the timer
         // clearInterval(robotConnectionTimer);
@@ -242,8 +243,6 @@ app.ws('/robot', function(ws, req) {
         }
         status.robotMode = robotStatus.mode;
         status.robotLocation = robotStatus.location;
-        console.log('status.robotMode: ', status.robotMode, ' robotStatus.mode: ', robotStatus.mode);
-        console.log('From robot: ', msg);
         
         if (status.robotMode == 'stop') {
             // Robot is stopped on the stop sign
@@ -251,6 +250,9 @@ app.ws('/robot', function(ws, req) {
                 status.deliverySchedule = Array.from(status.nextDeliverySchedule);
                 status.deliveryItems = JSON.parse(JSON.stringify(status.nextDeliveryItems)) ;
                 status.robotPath = Array.from(status.nextRobotPath);
+                console.log('ws(/robot).onmessage: deliverySchedule: ', status.deliverySchedule);
+                console.log('ws(/robot).onmessage: robotPath: ', status.robotPath);
+                console.log('ws(/robot).onmessage: needReschedule: ', status.needReschedule);
                 // When the load button is pressed, calculate the number of items on the robot and stop sign.
                 if (status.pendingOrders > 0  && status.nextCommand == 'startDelivery') {
                     for (addr in status.deliverySchedule) {
@@ -264,10 +266,6 @@ app.ws('/robot', function(ws, req) {
                     // Send message to the robot.
                     ws.send(JSON.stringify(getMessageToRobot(status)));
                     status.nextCommand = 'empty';
-                }
-                // When the nextCommand is empty, do scheduling.
-                else if (status.nextCommand == 'empty' && status.needReschedule) {
-
                 }
                 else {
                     // Send message to the robot.                    
@@ -347,6 +345,10 @@ app.listen(serverPort, function() {
     console.log('at listen, mode: ', status.robotMode);
     sqlMethods.getPendingOrders(connection, function(err, rows) {
         status.pendingOrders = Number(rows[0]['COUNT(*)']);
+        sqlMethods.getPendingItems(connection, function(err, rows) {
+            status.pendingItems = Number(rows[0]['COUNT(*)']);
+            console.log(status.pendingItems);
+        });
     })
 });
 
