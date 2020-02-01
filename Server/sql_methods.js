@@ -91,9 +91,9 @@ function orderedItemsFilldateById(connection, filldate, idString, callback) {
 
 function ordersFilldate(connection, filldate, idString, callback) {
     var query = "UPDATE ?? SET ??=?, ??=? WHERE ?? IN (SELECT DISTINCT ?? FROM ?? WHERE ?? IN " + idString
-                + ") AND ?? NOT IN (SELECT DISTINCT ?? FROM ?? WHERE ??=?)";
+                + ") AND ?? NOT IN (SELECT DISTINCT ?? FROM ?? WHERE ??=0000-00-00)";
     var params = ["orders", "filldate", filldate, "pending", 0, 'id', "order_id", "ordered_items", "id", "id",
-                    "order_id", "ordered_items", "filldate", '0000-00-00'];
+                    "order_id", "ordered_items", "filldate"];
     query = mysql.format(query, params);
     console.log(query);
     connection.query(query, function(err, rows) {
@@ -130,8 +130,8 @@ function getAvgDeliveryTime(connection, callback) {
 }
 
 function getPendingItems(connection, callback) {
-    var query = "SELECT COUNT(*) from ?? WHERE ??=?";
-    var params = ["ordered_items", "filldate", "0000-00-00"];
+    var query = "SELECT COUNT(*) from ?? WHERE ??=0000-00-00";
+    var params = ["ordered_items", "filldate"];
     query = mysql.format(query, params);
     connection.query(query, function(err, rows) {
         callback(err, rows);
@@ -139,8 +139,8 @@ function getPendingItems(connection, callback) {
 }
 
 function getDeliveredItems(connection, callback) {
-    var query = "SELECT COUNT(*) from ?? WHERE ?? != ?";
-    var params = ["ordered_items", "filldate", "0000-00-00"];
+    var query = "SELECT COUNT(*) from ?? WHERE ?? != 0000-00-00";
+    var params = ["ordered_items", "filldate"];
     query = mysql.format(query, params);
     connection.query(query, function(err, rows) {
         callback(err, rows);
