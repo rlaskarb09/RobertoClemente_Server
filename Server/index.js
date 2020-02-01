@@ -16,7 +16,7 @@ let ejs = require('ejs');
 var connection = mysql.createConnection({
     host: 'localhost',
     user: 'root',
-    password: 'ehfpalvkthf',
+    password: '',
     database: 'orderdb',
     debug: false
 });
