@@ -349,7 +349,7 @@ app.listen(serverPort, function() {
             status.pendingItems = Number(rows[0]['COUNT(*)']);
             console.log(status.pendingItems);
         });
-    })
+    });
 });
 
 app.get('/',function(req,res){
@@ -385,9 +385,10 @@ app.get('/api/pending', function (req, res) {
 });
 
 app.post('/api/neworder', function (req, res) {
-    console.log('order requested')
-    console.log(req.body)
+    console.log('order requested');
+    console.log(req.body);
     status.pendingOrders += 1;
+    status.pendingItems += Number(req.body.red) + Number(req.body.green), Number(req.body.blue);
     sqlMethods.addOrder(connection, req.body.customer, req.body.red, req.body.blue, req.body.green, req.body.address,
     function(err, rows) {
         status.needReschedule = true;
