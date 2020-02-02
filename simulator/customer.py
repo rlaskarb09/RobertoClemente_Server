@@ -14,8 +14,8 @@ class customer:
     _BLUE = 0
     _N = 0
     _pending = 0 
-    _order_date = None
-    _fill_date = None
+    _orderdate = None
+    _filldate = None
  
     _workTime = 60 * 3
     #_total_max_block = None  #per each order  
@@ -25,7 +25,7 @@ class customer:
         self._ID = ID 
         self._address = address 
         self._order_count = order_count 
-        self._max_block = max_block 
+        self._max_block = max_block
     
     def make_timer_list(self): 
         tmp = random.sample(range(0, self._workTime), self._order_count)
@@ -49,7 +49,7 @@ class customer:
         self._GREEN = X[0][1] 
         self._BLUE = X[0][2]
         self._N = self._RED + self._GREEN + self._BLUE
-        self._order_date = datetime.now()
+        self._orderdate = int(s/10)+1 #시간임의로 설정?#datetime.now()
         #print(self._fill_date)
         self.print_info()
         #self._fill_date = datetime.now()
@@ -57,7 +57,7 @@ class customer:
 
     def print_info(self):
         print("red{} blue{} green{}".format(self._RED, self._BLUE, self._GREEN))
-        print(self._order_date)
+        print(self._orderdate)
         print("reservation.php?customer={0}&red={1}&blue={2}&green={3}&pending={4}&address={5}".format(self._ID, self._RED, self._BLUE, self._GREEN, self._pending, self._address))
     
     
