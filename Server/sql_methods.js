@@ -70,10 +70,20 @@ function getDeliveredOrders(connection, callback) {
     });
 }
 
-function getItemsToDeliver(connection, callback) {
+function getItemsToDeliver(connection, idString, callback) {
     var query = "SELECT * FROM ?? WHERE ?? = 0000-00-00 limit 20";
     var params = ["ordered_items", "filldate"];
     query = mysql.format(query, params);
+    connection.query(query, function(err, rows) {
+        callback(err, rows);
+    });
+}
+
+function getItemsToDeliverNotInId(connection, idString, callback) {
+    var query = "SELECT * FROM ?? WHERE ?? = 0000-00-00 AND ?? NOT IN " + idString + " limit 20";
+    var params = ["ordered_items", "filldate", "id"];
+    query = mysql.format(query, params);
+    console.log(query);
     connection.query(query, function(err, rows) {
         callback(err, rows);
     });
@@ -154,6 +164,7 @@ module.exports.rowCount = rowCount;
 module.exports.getPendingOrders = getPendingOrders;
 module.exports.getDeliveredOrders = getDeliveredOrders;
 module.exports.getItemsToDeliver = getItemsToDeliver;
+module.exports.getItemsToDeliverNotInId = getItemsToDeliverNotInId;
 module.exports.orderedItemsFilldateById = orderedItemsFilldateById;
 module.exports.ordersFilldate = ordersFilldate;
 module.exports.ordersFilldateByAddress = ordersFilldateByAddress;

@@ -48,12 +48,15 @@ let status = {
     // updated when the robot is on the stop sign
     deliverySchedule: getInitDeliverySchedule(),
     deliveryItems: [],
+    deliveryItemIds: [],
     robotPath: [],
     // updated while scheduling
     nextDeliverySchedule: getInitDeliverySchedule(),
     nextDeliveryItems: [],
     nextRobotPath: [],
-    nextLoading: [0, 0, 0]
+    nextLoading: [0, 0, 0],
+    // updated when the load button pressed.
+    nextDeliveryItemIds: []
 };
 
 let messageToInventoryManager = {
@@ -181,9 +184,37 @@ function addressCompare(a, b) {
 }
 
 function getFIFOSchedule(callback) {
-    sqlMethods.getItemsToDeliver(connection, function(err, rows) {
+    var sqlMethod = null;
+    var idString = "";
+    console.log('status.deliveryItemIds at getFIFOSchedule: ', status.deliveryItemIds)
+    if (Array.isArray(status.deliveryItemIds) && status.deliveryItemIds.length) {
+        idString = "(";
+        var isFirst = true;
+        for (idx in status.deliveryItemIds) {
+            if (isFirst) {
+                isFirst = false;
+                idString += String(status.deliveryItemIds[idx]);
+            } else {
+                idString += ", " + String(status.deliveryItemIds[idx]);
+            }
+        }
+        idString += ")";
+        sqlMethod = sqlMethods.getItemsToDeliverNotInId;
+    } else {
+        sqlMethod = sqlMethods.getItemsToDeliver;
+    }
+
+    console.log('idString at getFIFOSchedule: ', idString);
+    
+    sqlMethod(connection, idString, function(err, rows) {
+        var itemIds = [];
         rows.sort(addressCompare);
         status.nextDeliveryItems = rows;
+        for (idx in rows) {
+            itemIds.push(rows[idx].id);
+        }
+        status.nextDeliveryItemIds = itemIds;
+        console.log('deliveryItemIds at getFIFOSchedule:', status.nextDeliveryItemIds);
         var deliverySchedule_ = getInitDeliverySchedule();
         for (var i = 0; i < status.nextDeliveryItems.length; i++) {
             if (status.nextDeliveryItems[i].color == 'R') {
@@ -282,6 +313,7 @@ app.ws('/robot', function(ws, req) {
                 console.log('ws(/robot).onmessage: needReschedule: ', status.needReschedule);
                 // When the load button is pressed, calculate the number of items on the robot and stop sign.
                 if (status.pendingOrders > 0  && status.nextCommand == 'startDelivery') {
+                    status.deliveryItemIds = JSON.parse(JSON.stringify(status.nextDeliveryItemIds));
                     for (schedule in status.deliverySchedule) {
                         status.itemsOnStop[0] -= schedule[1];
                         status.itemsOnStop[1] -= schedule[2];
