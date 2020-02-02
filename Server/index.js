@@ -36,6 +36,8 @@ const maxItemNumbers = [26, 27, 25];
 let exerciseNum = 10;
 
 let status = {
+    robotConnected: true,
+    robotStartTime: 0,
     robotMode:'stop',
     robotLocation: 'stop',
     nextCommand: 'empty',
@@ -62,12 +64,10 @@ let status = {
 
 let messageToInventoryManager = {
     robotMode: 'stop',
+    robotLocation: 'stop',
+    nextLoading: [0, 0, 0],
     deliverySchedule: {},
-    itemsOnStop: [26, 27, 25],
-    itemsOnRobot: [0, 0, 0],
-    pendingOrders: 0,
-    deliveredOrders: 0,
-    avgDeliveryTime: 0
+
 };
 
 let messageToDashboard = {
@@ -84,8 +84,9 @@ let messageToDashboard = {
 // }, robotLimitTime);
 
 let inventoryManagerTimer = setInterval(function() {
+    console.log(expressWs.getWss());
     expressWs.getWss('/inventory_manager').clients.forEach((wsInstance) => {
-        if (wsInstance.readyState == 1) {
+        if (wsInstance.readyState == 1 && wsInstance.category == 'inventory_manager') {
             wsInstance.send(JSON.stringify(getMessageToInventoryManager(status)));
         } else{
             console.log('webSocket readyState: ', wsInstance.readyState)
@@ -111,6 +112,8 @@ function getMessageToInventoryManager(status) {
 
 function getMessageToDashboard(status) {
     return {
+        robotConnected: status.robotConnected,
+        robotBatteryTime: parseInt((performance.now() - status.robotStartTime) / 60),
         itemsOnStop: status.itemsOnStop,
         itemsOnRobot: status.itemsOnRobot,
         pendingOrders: status.pendingOrders,
@@ -242,6 +245,7 @@ function getFIFOSchedule(callback) {
 connection.connect();
 
 app.ws('/inventory_manager', function(ws, req) {
+    ws.category = 'inventory_manager';
     // when received the message
     ws.on('message', function(msg) {
         console.log((performance.now() / 1000.0), 'message from IM: ', msg)
@@ -261,15 +265,18 @@ app.ws('/inventory_manager', function(ws, req) {
         ws.send(JSON.stringify(getMessageToInventoryManager(status)));
     });
     ws.on('close', function(msg) {
-        console.log('inventory_manager closed');
+        console.log('inventory_manager websocket closed');
     });
 });
 
 app.ws('/robot', function(ws, req) {
+    ws.category = 'robot';
     // when received the message
-    robotWebSocket = ws;
-
     ws.on('message', function(msg) {
+        if (status.robotConnected == false) {
+            status.robotConnected = true;
+            status.robotStartTime = performance.now();
+        }
         console.log((performance.now() / 1000.0), 'From robot: ', msg);
         // Clear the timer
         // clearInterval(robotConnectionTimer);
@@ -398,6 +405,11 @@ app.ws('/robot', function(ws, req) {
             status.nextCommand = 'empty';
         }
     });
+
+    ws.on('close', function(msg) {
+        console.log('robot websocket closed');
+        status.robotConnected = false;
+    });
 });
 
 app.listen(serverPort, function() {
@@ -416,6 +428,7 @@ app.listen(serverPort, function() {
 app.get('/',function(req,res){
 //    res.render('dashboard', {exerciseNum: moment(Date.now()).format('YYYY-MM-DD HH:mm:ss')});
     dashboard = getMessageToDashboard(status);
+    console.log('messageToDashboard: ', dashboard);
     exerciseNum = new Date()
     dashboard['exerciseNum'] = exerciseNum.getMinutes();
     res.render('dashboard', dashboard);
