@@ -84,12 +84,13 @@ let messageToDashboard = {
 // }, robotLimitTime);
 
 let inventoryManagerTimer = setInterval(function() {
-    if (InventoryManagerWebSocket != null){
-        InventoryManagerWebSocket.send(JSON.stringify(getMessageToInventoryManager(status)));
-    } 
-    // else{
-    //     console.log('inventory manager not connected.');
-    // }
+    expressWs.getWss('/inventory_manager').clients.forEach((wsInstance) => {
+        if (wsInstance.readyState == 1) {
+            wsInstance.send(JSON.stringify(getMessageToInventoryManager(status)));
+        } else{
+            console.log('webSocket readyState: ', wsInstance.readyState)
+        }
+    });
 }, 3000);
 
 function getMessageToRobot(status) {
@@ -241,7 +242,6 @@ function getFIFOSchedule(callback) {
 connection.connect();
 
 app.ws('/inventory_manager', function(ws, req) {
-    InventoryManagerWebSocket = ws;
     // when received the message
     ws.on('message', function(msg) {
         console.log((performance.now() / 1000.0), 'message from IM: ', msg)
@@ -259,6 +259,9 @@ app.ws('/inventory_manager', function(ws, req) {
             status.itemsOnStop[2] = maxItemNumbers[2] - status.itemsOnRobot[2];
         }
         ws.send(JSON.stringify(getMessageToInventoryManager(status)));
+    });
+    ws.on('close', function(msg) {
+        console.log('inventory_manager closed');
     });
 });
 
