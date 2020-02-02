@@ -37,6 +37,7 @@ let exerciseNum = 10;
 
 let status = {
     robotMode:'stop',
+    robotLocation: 'stop',
     nextCommand: 'empty',
     itemsOnStop: [26, 27, 25],
     itemsOnRobot: [0, 0, 0],
