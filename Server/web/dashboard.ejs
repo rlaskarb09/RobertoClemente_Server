@@ -20,6 +20,7 @@
                     <h2>Order</h2>
                     <p class="info">Total Order : <span class="total"><%= totalOrders %></span></p>
                     <p class="info">Throughput : <span class="throughput"><%= deliveredOrders %></span></p>
+                    <br/>
                     <p class="info">Backlog : <span class="backlog"><%= pendingOrders %></span></p>
                     <p class="info">Backlog Items : <span class="backlog"><%= pendingItems%></span></p>
 			     </div>
@@ -33,7 +34,8 @@
                         B : <span class="blueItem"><%= itemsOnStop[2] %></span></p>
                     <br/>
                     <p class="info">Remaining items on Robot</p>
-                    <p class="info">R : <span class="redItem"><%= itemsOnRobot[0] %></span> &nbsp;
+                    <p class="info">
+                        R : <span class="redItem"><%= itemsOnRobot[0] %></span> &nbsp;
                         G : <span class="greenItem"><%= itemsOnRobot[1] %></span> &nbsp;
                         B : <span class="blueItem"><%= itemsOnRobot[2]%></span></p>
                 </div>
@@ -42,17 +44,21 @@
                     <h2>Others</h2>
                     <div class="main_battery">
                         <h2></h2>
-                        <p class="battery" id ="first">First battery</p>
-                        <button type="submit" class="btn_time" onclick="time(<%= exerciseNum %>)">START</button>
-                        <button type="submit" class="btn_time">END</button>
-                        <br/>
-                        <p class="battery">Second battery &nbsp;
-                            <button type="submit" class="btn_time">START</button>
+                        <p class="battery" id ="first">
+                            First battery &nbsp;
+                            <button type="submit" class="btn_time" onclick="first_time(<%= exerciseNum %>)">START</button>
                             <button type="submit" class="btn_time">END</button>
                         </p>
                         <br/>
-                        <p class="battery">Third battery &nbsp;&nbsp;&nbsp;&nbsp;
-                            <button type="submit" class="btn_time">START</button>
+                        <p class="battery" id = "second">
+                            Second battery &nbsp;
+                            <button type="submit" class="btn_time" onclick="second_time(<%= exerciseNum %>)">START</button>
+                            <button type="submit" class="btn_time">END</button>
+                        </p>
+                        <br/>
+                        <p class="battery" id = "third">
+                            Third battery &nbsp;&nbsp;&nbsp;&nbsp;
+                            <button type="submit" class="btn_time" onclick="third_time(<%= exerciseNum %>)">START</button>
                             <button type="submit" class="btn_time">END</button>
                         </p>
                     </div>
@@ -77,7 +83,7 @@
                     <div id="timeChart-wrapper">
                         <div id="times"></div>
                         <canvas id="timeChart"></canvas>
-                        <div id="mins"></div>
+                        <div id="items"></div>
                     </div>
                 </div>
                 <!-- time_graph class end -->
