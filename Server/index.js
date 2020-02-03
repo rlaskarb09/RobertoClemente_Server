@@ -37,7 +37,7 @@ let exerciseNum = 10;
 
 let status = {
     robotConnected: true,
-    robotStartTime: 0,
+    robotStartTime: performance.now(),
     robotMode:'stop',
     robotLocation: 'stop',
     nextCommand: 'empty',
@@ -67,7 +67,6 @@ let messageToInventoryManager = {
     robotLocation: 'stop',
     nextLoading: [0, 0, 0],
     deliverySchedule: {},
-
 };
 
 let messageToDashboard = {
@@ -84,7 +83,6 @@ let messageToDashboard = {
 // }, robotLimitTime);
 
 let inventoryManagerTimer = setInterval(function() {
-    console.log(expressWs.getWss());
     expressWs.getWss('/inventory_manager').clients.forEach((wsInstance) => {
         if (wsInstance.readyState == 1 && wsInstance.category == 'inventory_manager') {
             wsInstance.send(JSON.stringify(getMessageToInventoryManager(status)));
@@ -92,7 +90,7 @@ let inventoryManagerTimer = setInterval(function() {
             console.log('webSocket readyState: ', wsInstance.readyState)
         }
     });
-}, 3000);
+}, 1000);
 
 function getMessageToRobot(status) {
     return {
@@ -113,7 +111,7 @@ function getMessageToInventoryManager(status) {
 function getMessageToDashboard(status) {
     return {
         robotConnected: status.robotConnected,
-        robotBatteryTime: parseInt((performance.now() - status.robotStartTime) / 60),
+        robotBatteryTime: parseInt((performance.now() - status.robotStartTime)/60),
         itemsOnStop: status.itemsOnStop,
         itemsOnRobot: status.itemsOnRobot,
         pendingOrders: status.pendingOrders,
@@ -299,7 +297,7 @@ app.ws('/robot', function(ws, req) {
                         deliveryPath.push(deliverySchedule_[idx][0]);
                     }
                 }
-                deliveryPath.push('stop');
+//                deliveryPath.push('stop');
                 status.nextRobotPath = deliveryPath;
                 // Send message to the robot.
                 status.needReschedule = false;
@@ -404,6 +402,11 @@ app.ws('/robot', function(ws, req) {
             ws.send(JSON.stringify(getMessageToRobot(status)));
             status.nextCommand = 'empty';
         }
+        else {
+            // Send message to the robot.
+            ws.send(JSON.stringify(getMessageToRobot(status)));
+            status.nextCommand = 'empty';
+        }
     });
 
     ws.on('close', function(msg) {
@@ -427,12 +430,12 @@ app.listen(serverPort, function() {
 
 app.get('/',function(req,res){
 //    res.render('dashboard', {exerciseNum: moment(Date.now()).format('YYYY-MM-DD HH:mm:ss')});
-    dashboard = getMessageToDashboard(status);
-    console.log('messageToDashboard: ', dashboard);
-    exerciseNum = new Date()
-    dashboard['exerciseNum'] = exerciseNum.getMinutes();
-    res.render('dashboard', dashboard);
+    res.render('dashboard', getMessageToDashboard(status));
 });
+
+app.get('/', function(req, res){
+    res.send('dashboard', getMessageToDashboard(status));
+})
 
 app.get('/login',function(req,res){
     res.render('custWeb_login', {exerciseNum: moment(Date.now()).format('YYYY-MM-DD HH:mm:ss'),

@@ -1,15 +1,43 @@
+$(document).ready(function (){
+    setInterval(function(){
+//        var totalorder = <%= totalOrders %>;
+        var totalorder = Math.floor(Math.random() * 100);
+        $('#total_order').text('Total order : ' + totalorder);
+    }, 1000);
+});
 // <-------------------FOR BATTERY------------------->
-function first_time(number){
-    const rest_time = (30+number)%60 - number; 
-    document.getElementById('first').innerHTML = 'First battery REST TIME : ' + rest_time;
+$("#first").on('click', function (){
+    var startdt = new Date();
+    var untildt = startdt.getHours()*60 + startdt.getMinutes() + 30;
+    setInterval(function(){
+        var nowdt = new Date();
+        var newdt = nowdt.getHours()*60 + nowdt.getMinutes();
+        var remaint = untildt - newdt;
+        $('#first').text("First battery REST TIME : " + remaint);
+    }, 1000);
+});
+
+$("#second").on('click', function (){
+    var startdt = new Date();
+    var untildt = startdt.getHours()*60 + startdt.getMinutes() + 30;
+    setInterval(function(){
+        var nowdt = new Date();
+        var newdt = nowdt.getHours()*60 + nowdt.getMinutes();
+        var remaint = untildt - newdt;
+        $('#second').text("Second battery REST TIME : " + remaint);
+    }, 1000);
+});
+function first(rbtBatTime){
+    var remainT = rbtBatTime/1000 - 30;
+    document.getElementById('firstB').innerHTML = remainT;
 }
-function second_time(number){
-    const rest_time = (30+number)%60 - number; 
-    document.getElementById('second').innerHTML = 'Second battery REST TIME : ' + rest_time;
+function second(rbtBatTime){
+    var remainT = rbtBatTime/1000 - 30;
+    document.getElementById('secondB').innerHTML = remainT;
 }
-function third_time(number){
-    const rest_time = (30+number)%60 - number; 
-    document.getElementById('third').innerHTML = 'Third battery REST TIME : ' + rest_time;
+function first(rbtBatTime){
+    var rrr = rbtBatTime/1000 - 30;
+    document.getElementById('first').innerHTML = 'Battery Using Time' + rrr;
 }
 
 // <-------------------FOR ORDER CHART------------------->
@@ -43,25 +71,27 @@ for(var i = values.length-1;i>=0;i--){
     value.appendChild(text_value);
     document.getElementById('values').appendChild(value);
 }
+
 var ch = document.getElementById("orderChart");
 // draw pending orders
-orderChart.beginPath();    
-for(var i =0;i<w.length;i++){
-    orderChart.moveTo(0, ch);
-    orderChart.strokeStyle = '#004429';
-    orderChart.lineWidth = 2;
-    orderChart.lineTo(w[i], h[Math.floor((Math.random() * 9) + 1)]);
-    orderChart.stroke();
-}
-// draw slope of pending orders
-orderChart.beginPath();
-for(var i =0;i<w.length;i++){
-    orderChart.moveTo(0, ch);
-    orderChart.strokeStyle = '#d59096';
-    orderChart.lineWidth = 2;
-    orderChart.lineTo(w[i], h[Math.floor((Math.random() * 9) + 1)]);
-    orderChart.stroke();
-}
+//orderChart.beginPath();    
+//for(var i =0;i<w.length;i++){
+//    orderChart.moveTo(0, ch);
+//    orderChart.strokeStyle = '#004429';
+//    orderChart.lineWidth = 2;
+//    orderChart.lineTo(w[i], h[Math.floor((Math.random() * 9) + 1)]);
+//    orderChart.stroke();
+//}
+//// draw slope of pending orders
+//orderChart.beginPath();
+//for(var i =0;i<w.length;i++){
+//    orderChart.moveTo(0, ch);
+//    orderChart.strokeStyle = '#d59096';
+//    orderChart.lineWidth = 2;
+//    orderChart.lineTo(w[i], h[Math.floor((Math.random() * 9) + 1)]);
+//    orderChart.stroke();
+//}
+
 
 //vertical lines
 function gridV(){
@@ -89,11 +119,6 @@ function gridH(){
 gridV();
 gridH();
 
-//var beforex = document.querySelector('#mins>span:before');
-//for(var i = 1;i<w.length;i++){
-//    beforex.style.marginLeft = w[i];
-//}
-
 // <-------------------FOR TIME CHART------------------->
 var timeChart = document.getElementById('timeChart').getContext("2d");
 
@@ -110,7 +135,7 @@ var tw = [0, twstep, 2*twstep, 3*twstep, 4*twstep, 5*twstep, 6*twstep, 7*twstep,
 var th = [ch, ch-thstep, ch-2*thstep, ch-3*thstep, ch-4*thstep, ch-5*thstep, ch-6*thstep, ch-7*thstep, ch-8*thstep, ch-9*thstep, ch-10*thstep];
 
 // x axis // y axis
-var items = ['5', '15', '25', '35', '45', '55', '65', '75', '85', '95'];
+var items = ['5', '15', '25', '35', '45', '55', '65', '75', '85', '95', '105'];
 var times = [2, 4, 6, 8, 10, 12, 14, 16, 18, 20];
 
 for(var i = 0;i<items.length;i++){
@@ -127,18 +152,13 @@ for(var i = times.length-1;i>=0;i--){
     document.getElementById('times').appendChild(time);
 }
 
-var tch = document.getElementById("timeChart");
+var timech = document.getElementById("timeChart");
 // draw avg delivery time
 timeChart.beginPath();
 for(var i =0;i<tw.length;i++){
-    timeChart.moveTo(0, tch);
+    timeChart.moveTo(0, timech);
     timeChart.strokeStyle = '#004429';
     timeChart.lineWidth = 2;
     timeChart.lineTo(tw[i], th[Math.floor((Math.random() * 9) + 1)]);
     timeChart.stroke();
 }
-
-//var tbeforex = document.querySelector('#times>span:before');
-//for(var i = 1;i<tw.length;i++){
-//    tbeforex.style.marginLeft = tw[i];
-//}

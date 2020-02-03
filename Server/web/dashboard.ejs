@@ -2,27 +2,28 @@
 <html>
     <head>
         <meta charset="utf-8">
-<!--        <meta http-equiv="refresh" content="10;">-->
+        <meta http-equiv="refresh" content="2;">
         <title>Dash Board</title>
         <link href="./part/style/dash_style.css" type="text/css" rel="stylesheet"/>
         <link rel="shortcut icon" href="./part/style/favicon.ico">
+        <script type="text/javascript" src="http://code.jquery.com/jquery-1.10.1.min.js"></script>
     </head>
 	<body>
 		<div class="frame">
             <div class="title">
 				<h1>Roberto Clemente</h1>
-<!--				<img id="dobby" src="./part/style/dobby_title.png"/>-->
 			</div>
             <!-- title class end -->
             
             <div class="INFO_container">
                 <div class="main_Order">
                     <h2>Order</h2>
-                    <p class="info">Total Order : <span class="total"><%= totalOrders %></span></p>
+                    <p class="info">Total Order : <span class="total" id="totalorder" ><%= totalOrders %></span></p>
                     <p class="info">Throughput : <span class="throughput"><%= deliveredOrders %></span></p>
                     <br/>
                     <p class="info">Backlog : <span class="backlog"><%= pendingOrders %></span></p>
                     <p class="info">Backlog Items : <span class="backlog"><%= pendingItems%></span></p>
+<!--                    <div id="total_order"></div>    -->
 			     </div>
                 <!-- Order class end -->
                 <div class="main_Robot">
@@ -43,24 +44,22 @@
                 <div class="main_Others">
                     <h2>Others</h2>
                     <div class="main_battery">
-                        <h2></h2>
-                        <p class="battery" id ="first">
+                        <p class="battery">
+                            Robot Connection : <%= robotConnected %>
+                        </p>
+<!--
+                        <p class = "battery" id = "first">
                             First battery &nbsp;
-                            <button type="submit" class="btn_time" onclick="first_time(<%= exerciseNum %>)">START</button>
-                            <button type="submit" class="btn_time">END</button>
+                            <button class="btn_time", id="firstB" onclick="first(<%=robotBatteryTime%>)">START</button>
                         </p>
                         <br/>
-                        <p class="battery" id = "second">
+                        <p class = "battery" id = "second">
                             Second battery &nbsp;
-                            <button type="submit" class="btn_time" onclick="second_time(<%= exerciseNum %>)">START</button>
-                            <button type="submit" class="btn_time">END</button>
+                            <button class="btn_time", id="secondB" onclick="second(<%=robotBatteryTime%>)">START</button>
                         </p>
+-->
                         <br/>
-                        <p class="battery" id = "third">
-                            Third battery &nbsp;&nbsp;&nbsp;&nbsp;
-                            <button type="submit" class="btn_time" onclick="third_time(<%= exerciseNum %>)">START</button>
-                            <button type="submit" class="btn_time">END</button>
-                        </p>
+                        <p class="battery">Battery Using Time : <%= robotBatteryTime%></p>
                     </div>
                     
                 </div>
@@ -96,6 +95,8 @@
             <!-- footer class end -->
         </div>
         <script type="text/javascript" src="dash_script.js">
+            console.log(<%= robotBatteryTime %>)
         </script>
+        
 	</body>
 </html>

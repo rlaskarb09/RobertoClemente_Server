@@ -200,11 +200,11 @@ bottom: 20px;
     margin-left:20px;
 }
 #items>span{
-    width: 80px;
+    width: 60px;
     display: inline-block;
     color:#004429;
     font-size:16px;
-    margin-left: 25px;
+    margin-left: 30px;
 }
 #items>span:before {
 content: '';
