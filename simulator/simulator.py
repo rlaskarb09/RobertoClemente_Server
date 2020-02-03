@@ -5,6 +5,7 @@ import random
 from datetime import datetime
 from customer import customer
 import scheduler
+import threading
 
 def addtoidx(A, add):
     idx = np.where(A==add)[0][0]
@@ -63,6 +64,7 @@ def TperOrder(Dlist, Mtime, Atime, Address, maxitem):
                 curr = add
         else:
             Dtime += Mtime[1] # unload an item
+    timelist.append(Dtime)
     print("Delivery time of order ID {}: {}".format(Dlist[i]._ID, Dtime))
     return timelist
 
@@ -113,6 +115,24 @@ def testSmallandAdd2(Q, Dlist, maxitem):
     # avgtime = timelist[-1] / len(timelist)
     print("Avg Deliver time: {}".format(avgtime))
 
+def testnew(Q, Dlist, maxitem, orderlist):
+    print("-------sorted by quantity & address & update-------")
+    Dlist, orderlist = scheduler.updatescedule(Q, maxitem, orderlist)
+    timelist = TperOrder(Dlist, Mtime, Atime, Address, maxitem)
+    avgtime = sum(timelist) / len(timelist)
+    # avgtime = timelist[-1] / len(timelist)
+    print("Avg Deliver time: {}".format(avgtime))
+    return orderlist
+
+def generator(CUST, seed, Q, x):
+    for i in range(len(seed)):
+    #for x in range(15):
+        random.seed(seed[i])
+        idx = random.randint(0, 5)
+        CUST[x] = customer(x + 1, a[idx], order_count, maxN)  # ID = x+1, address = a[idx]
+        CUST[x].makeRGB(seed[i])
+        Q.put(CUST[x])
+        x += 1
 
 
 a = [101,102,103,203,202,201] # address list
@@ -137,12 +157,17 @@ Q = queue.Queue()
 Q2 = queue.Queue()
 Q3 = queue.Queue()
 Q4 = queue.Queue()
+Q5 = queue.Queue()
 seed = np.arange(100)
 maxN = 30
 CUST = np.zeros(100).tolist()
+Dlist = []
+Dlist2 = []
+Dlist3 = []
+Dlist4 = []
+Dlist5 = []
 
-
-for i in range(len(seed)):
+'''for i in range(len(seed)):
 #for i in range(10):
     random.seed(seed[i])
     idx = random.randint(0,5)
@@ -153,15 +178,17 @@ for i in range(len(seed)):
     Q2.put(CUST[i])
     Q3.put(CUST[i])
     Q4.put(CUST[i])
+    Q5.put(CUST[i])'''
 
-
-Dlist = []
-Dlist2 = []
-Dlist3 = []
-Dlist4 = []
-testFIFO(Dlist, Q)
+'''testFIFO(Dlist, Q)
 testsmall(Dlist2, Q2)
 testSmallAdd(Dlist3, Q3)
-testSmallandAdd2(Q4, Dlist4, maxitem)
+testSmallandAdd2(Q4, Dlist4, maxitem)'''
+orderlist = []
+for i in range(10):
+    generator(CUST, seed[i*10:(i+1)*10], Q, i*10)
+    orderlist = testnew(Q, Dlist5, maxitem, orderlist)
 
+#generator(CUST, seed, Q, 0)
+#orderlist = testnew(Q, Dlist5, maxitem, orderlist)
 
