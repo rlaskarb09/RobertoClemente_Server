@@ -433,8 +433,15 @@ app.get('/',function(req,res){
     res.render('dashboard', getMessageToDashboard(status));
 });
 
-app.get('/', function(req, res){
-    res.send('dashboard', getMessageToDashboard(status));
+app.post('/firstB', (req, res)=>{
+    firstB_time = req.body.firstB;
+    dashboard = getMessageToDashboard(status);
+    dashboard["firstB"] = firstB_time;
+    res.render('dash_firstB', dashboard);
+});
+
+app.get('/firstB', function(req, res){
+    res.render('dash_firstB', dashboard);
 })
 
 app.get('/login',function(req,res){

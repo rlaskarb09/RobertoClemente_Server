@@ -5,42 +5,37 @@ $(document).ready(function (){
         $('#total_order').text('Total order : ' + totalorder);
     }, 1000);
 });
-// <-------------------FOR BATTERY------------------->
-$("#first").on('click', function (){
-    var startdt = new Date();
-    var untildt = startdt.getHours()*60 + startdt.getMinutes() + 30;
-    setInterval(function(){
-        var nowdt = new Date();
-        var newdt = nowdt.getHours()*60 + nowdt.getMinutes();
-        var remaint = untildt - newdt;
-        $('#first').text("First battery REST TIME : " + remaint);
-    }, 1000);
-});
 
-$("#second").on('click', function (){
-    var startdt = new Date();
-    var untildt = startdt.getHours()*60 + startdt.getMinutes() + 30;
+// <-------------------FOR BATTERY------------------->
+$(document).ready(function(){
     setInterval(function(){
-        var nowdt = new Date();
-        var newdt = nowdt.getHours()*60 + nowdt.getMinutes();
-        var remaint = untildt - newdt;
-        $('#second').text("Second battery REST TIME : " + remaint);
-    }, 1000);
-});
-function first(rbtBatTime){
-    var remainT = rbtBatTime/1000 - 30;
-    document.getElementById('firstB').innerHTML = remainT;
-}
-function second(rbtBatTime){
-    var remainT = rbtBatTime/1000 - 30;
-    document.getElementById('secondB').innerHTML = remainT;
-}
-function first(rbtBatTime){
-    var rrr = rbtBatTime/1000 - 30;
-    document.getElementById('first').innerHTML = 'Battery Using Time' + rrr;
-}
+        var dt = new Date();
+        var dh = dt.getHours();
+        var dm = dt.getMinutes();
+        $('#current_time').text('Current time : ' + dh + ':' + dm);
+    },1);
+})
+$(document).ready(function(){
+    var firstb_time = parseInt(document.getElementById('firstB').innerText);
+    setInterval(function(){
+        var dt = new Date();
+        var dm = dt.getMinutes();
+        final_time = firstb_time+30;
+        if (final_time > 60 && dm < 30){
+            remain_time = final_time-60-dm;
+        }else{
+            remain_time = final_time - dm;
+        }
+        $('#firstB_time').text('First battery REMAIN time : ' + remain_time);
+    },1);
+})
 
 // <-------------------FOR ORDER CHART------------------->
+var pendingList = new Array();
+var pendingorder = parseInt(document.getElementById('pendingOrder').innerText);
+pendingList.push(pendingorder);
+console.log(pendingList)
+
 var orderChart = document.getElementById("orderChart").getContext("2d");
 
 orderChart.canvas.width = "1000";

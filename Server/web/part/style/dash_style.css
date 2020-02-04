@@ -26,9 +26,11 @@ h2{
 }
 span.backlog{
     font-family: serif;
-/*    font-size:24px;*/
-    color : crimson;
+   /* font-size:32px; */
+    background-color : crimson;
+    color:white;
     font-weight: bold;
+    padding:5px;
 }
 span.throughput{
     font-family: serif;
@@ -75,9 +77,13 @@ span.blueItem{
     color:white;
     background-color:rgb(0,70,42);
 }
+#firstB_time{
+    font-size: 48px;
+    color:crimson;
+}
 /*--------------------------For p Class--------------------------*/
 .info{
-    font-size: 36px;
+    font-size: 40px;
 	text-indent:30px;
     text-align:center;
 }

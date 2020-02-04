@@ -2,14 +2,15 @@
 <html>
     <head>
         <meta charset="utf-8">
-        <title>Dash Board</title>
+        <meta http-equiv="refresh" content="10;">
+        <title>Dash Board (First BATTERY)</title>
         <link href="./part/style/dash_style.css" type="text/css" rel="stylesheet"/>
         <link rel="shortcut icon" href="./part/style/favicon.ico">
         <script type="text/javascript" src="http://code.jquery.com/jquery-1.10.1.min.js"></script>
     </head>
 	<body>
 		<div class="frame">
-            <div class="title"> 
+            <div class="title">
 				<h1>Roberto Clemente</h1>
 			</div>
             <!-- title class end -->
@@ -47,13 +48,14 @@
                             Robot Connection : <%= robotConnected %>
                         </p>
                         <br/>
-                        <div class="battery" id="current_time"></div>
-                            <form action="/firstB" method="POST">
-                                <p class="battery" id = "first">
-                                    First Battery start time : <input type='text' name = 'firstB'>
-                                    <button type="submit" class="btn_time">START</button>
-                                </p>
-                            </form>
+                        <div class="battery" id="current_time"></div><br/>
+                        <div class="battery" id="firstB" style="display: none"><%=firstB%></div>
+                        <div class="battery" id="firstB_time"></div>
+                        <br/>
+                        <p class = "battery" id = "second">
+                            Second battery &nbsp;
+                            <button class="btn_time", id="secondB" onclick="second(<%=robotBatteryTime%>)">START</button>
+                        </p>
                     </div>
                     
                 </div>
@@ -64,6 +66,7 @@
             <div class="GRAPH_container">
                 <div class="order_graph">
                     <h2>Order Graph</h2>
+                    <div id="pendingOrder" style="display:none"><%=pendingOrders%></div>
                     <div id="orderChart-wrapper">
                         <div id="values"></div>
                         <canvas id="orderChart"></canvas>
@@ -89,7 +92,6 @@
             <!-- footer class end -->
         </div>
         <script type="text/javascript" src="dash_script.js">
-            console.log(<%= robotBatteryTime %>)
         </script>
         
 	</body>
