@@ -36,7 +36,7 @@ const maxItemNumbers = [26, 27, 25];
 let exerciseNum = 10;
 
 let status = {
-    robotConnected: true,
+    robotConnected: false,
     robotStartTime: performance.now(),
     robotMode:'stop',
     robotLocation: 'stop',
@@ -97,6 +97,8 @@ let inventoryManagerTimer = setInterval(function() {
     });
 }, 1000);
 
+let pendingOrderListTimer = null;
+
 function getMessageToRobot(status) {
     return {
         command: status.nextCommand, 
@@ -116,15 +118,24 @@ function getMessageToInventoryManager(status) {
 function getMessageToDashboard(status) {
     return {
         robotConnected: status.robotConnected,
-        robotBatteryTime: parseInt((performance.now() - status.robotStartTime)/60),
+        robotBatteryTime: getRobotBatteryTime(),
         itemsOnStop: status.itemsOnStop,
         itemsOnRobot: status.itemsOnRobot,
         pendingOrders: status.pendingOrders,
         pendingItems: status.pendingItems,
         deliveredOrders: status.deliveredOrders,
         avgDeliveryTime: status.avgDeliveryTime,
-        totalOrders: status.pendingOrders + status.deliveredOrders
+        totalOrders: status.pendingOrders + status.deliveredOrders,
+        pendingOrderList: status.pendingOrderList
     };
+}
+
+function getRobotBatteryTime(status) {
+    if (status.robotConnected) {
+        return (performance.now() - status.robotStartTime) / 60000;
+    } else {
+        return 0;
+    }
 }
 
 // get nextLoading from deliverySchedule
@@ -320,7 +331,7 @@ function getSchedule(callback) {
                 status.nextNextRobotPath = getRobotPath(status.nextNextDeliverySchedule);
                 status.nextNextDeliveryItems = itemsToDeliver.slice(20);
                 status.nextNextDeliveryItemIds = getItemIds(status.nextNextDeliveryItems);
-
+                callback();
                 // console.log('nextDeliverySchedule: ', status.nextDeliverySchedule);
                 // console.log('nextLoading: ', status.nextLoading);
                 // console.log('nextRobotPath: ', status.nextRobotPath);
@@ -448,42 +459,17 @@ app.ws('/robot', function(ws, req) {
 
         // Get robot status
         var robotStatus = JSON.parse(msg);
-        if ((robotStatus.location == 'stop' && robotStatus.mode == 'stop') || 
-            (status.robotMode != robotStatus.mode && status.needReschedule == true))
-        {
-            getFIFOSchedule(function(deliverySchedule_) {
-                var deliveryPath = [];
-                status.nextDeliverySchedule = deliverySchedule_;
-                for (idx in deliverySchedule_) {
-                    
-                    if (deliverySchedule_[idx][1] + deliverySchedule_[idx][2] + deliverySchedule_[idx][3] > 0) {
-                        deliveryPath.push(deliverySchedule_[idx][0]);
-                    }
-                }
-                // deliveryPath.push('stop');
-                status.nextRobotPath = deliveryPath;
-                // Send message to the robot.
-                status.needReschedule = false;
-                status.nextLoading = getNextLoading(status.nextDeliverySchedule);
-                console.log('ws(/robot).onmessage getFIFOSchedule: nextDeliverySchedule: ', status.nextDeliverySchedule);
-                console.log('ws(/robot).onmessage getFIFOSchedule: nextLoading: ', status.nextLoading);
-                console.log('ws(/robot).onmessage getFIFOSchedule: nextRobotPath: ', status.nextRobotPath);
-                console.log('ws(/robot).onmessage getFIFOSchedule: needReschedule: ', status.needReschedule);
-            });
-        }
 
-        status.robotMode = robotStatus.mode;
-        status.robotLocation = robotStatus.location;
+
         
-        if (status.robotMode == 'stop') {
+        if (robotStatus.mode == 'stop') {
             // Robot is stopped on the stop sign
-            if (status.robotLocation == 'stop') {
-                status.deliverySchedule = JSON.parse(JSON.stringify(status.nextDeliverySchedule));
-                status.deliveryItems = JSON.parse(JSON.stringify(status.nextDeliveryItems)) ;
-                status.robotPath = JSON.parse(JSON.stringify(status.nextRobotPath));
-                console.log('ws(/robot).onmessage: deliverySchedule: ', status.deliverySchedule);
-                console.log('ws(/robot).onmessage: robotPath: ', status.robotPath);
-                console.log('ws(/robot).onmessage: needReschedule: ', status.needReschedule);
+            if (robotStatus.location == 'stop') {
+                if (status.robotLocation == 'move') {  
+                    getSchedule(function() {
+                        console.log('Scheduled');
+                    });
+                }
                 // When the load button is pressed, calculate the number of items on the robot and stop sign.
                 if (status.pendingOrders > 0  && status.nextCommand == 'startDelivery') {
                     status.deliveryItemIds = JSON.parse(JSON.stringify(status.nextDeliveryItemIds));
@@ -554,13 +540,13 @@ app.ws('/robot', function(ws, req) {
                 }
             }
         }
-        else if (status.robotMode == 'move') {
+        else if (robotStatus.mode == 'move') {
             status.needReschedule = true;
             // Send message to the robot.
             ws.send(JSON.stringify(getMessageToRobot(status)));
             status.nextCommand = 'empty';
         }
-        else if (status.robotMode == 'maintenance') {
+        else if (robotStatus.mode == 'maintenance') {
             status.needReschedule = true;
             // Send message to the robot.
             ws.send(JSON.stringify(getMessageToRobot(status)));
@@ -571,6 +557,8 @@ app.ws('/robot', function(ws, req) {
             ws.send(JSON.stringify(getMessageToRobot(status)));
             status.nextCommand = 'empty';
         }
+        status.robotMode = robotStatus.mode;
+        status.robotLocation = robotStatus.location;
     });
 
     ws.on('close', function(msg) {
@@ -585,12 +573,15 @@ app.listen(serverPort, function() {
     status.robotMode = 'stop';
     console.log('at listen, mode: ', status.robotMode);
 
-    getSchedule();
-
     sqlMethods.getPendingOrders(connection, function(err, rows) {
         status.pendingOrders = Number(rows[0]['COUNT(*)']);
         sqlMethods.getPendingItems(connection, function(err, rows) {
             status.pendingItems = Number(rows[0]['COUNT(*)']);
+            status.pendingOrderList = [status.pendingOrders];
+            pendingOrderListTimer = setInterval(function() {
+                status.pendingOrderList.push(status.pendingOrders)
+                console.log(performance.now(), 'pendingOrderList updated: ', status.pendingOrderList)
+            }, 1000 * 60);
         });
     });
 });
