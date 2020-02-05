@@ -90,6 +90,7 @@ let messageToDashboard = {
 // }, robotLimitTime);
 
 let inventoryManagerTimer = setInterval(function() {
+    console.log(expressWs.getWss().clients.size);
     expressWs.getWss('/inventory_manager').clients.forEach((wsInstance) => {
         if (wsInstance.readyState == 1 && wsInstance.category == 'inventory_manager') {
             wsInstance.send(JSON.stringify(getMessageToInventoryManager(status)));
@@ -273,7 +274,6 @@ function getSchedule(callback) {
                     var order_id = rows[i].order_id;
                     var itemCount = rows[i]['COUNT(*)'];
                     for (var j = 0; j < items.length; j++) {
-                        console.log('i, j: ', i, j);
                         if (items[j]['order_id'] == order_id) {
                             for (var k = j; k < j + itemCount; k++) {
                                 itemsToDeliver.push(items[k]);
@@ -353,7 +353,6 @@ function getSchedule(callback) {
                     var order_id = rows[i].order_id;
                     var itemCount = rows[i]['COUNT(*)'];
                     for (var j = 0; j < items.length; j++) {
-                        console.log('i, j: ', i, j);
                         if (items[j]['order_id'] == order_id) {
                             for (var k = j; k < j + itemCount; k++) {
                                 itemsToDeliver.push(items[k]);
