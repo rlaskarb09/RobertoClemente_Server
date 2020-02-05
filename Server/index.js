@@ -16,7 +16,7 @@ let ejs = require('ejs');
 var connection = mysql.createConnection({
     host: 'localhost',
     user: 'root',
-    password: 'Dltndk97!',
+    password: '',
     database: 'orderdb',
     debug: false
 });
@@ -59,7 +59,14 @@ let status = {
     nextRobotPath: [],
     nextLoading: [0, 0, 0],
     // updated when the load button pressed.
-    nextDeliveryItemIds: []
+    nextDeliveryItemIds: [],
+    // updated while scheduling
+    nextNextDeliverySchedule: getInitDeliverySchedule(),
+    nextNextDeliveryItems: [],
+    nextNextRobotPath: [],
+    nextNextLoading: [0, 0, 0],
+    // updated when the load button pressed.
+    nextNextDeliveryItemIds: []
 };
 
 let messageToInventoryManager = {
@@ -86,8 +93,6 @@ let inventoryManagerTimer = setInterval(function() {
     expressWs.getWss('/inventory_manager').clients.forEach((wsInstance) => {
         if (wsInstance.readyState == 1 && wsInstance.category == 'inventory_manager') {
             wsInstance.send(JSON.stringify(getMessageToInventoryManager(status)));
-        } else{
-            console.log('webSocket readyState: ', wsInstance.readyState)
         }
     });
 }, 1000);
@@ -133,6 +138,25 @@ function getNextLoading(deliverySchedule_) {
     }
 
     return nextLoading;
+}
+
+function getRobotPath(deliverySchedule_) {
+    var robotPath = [];
+    for (idx in deliverySchedule_) {
+        if (deliverySchedule_[idx][1] + deliverySchedule_[idx][2] + deliverySchedule_[idx][3] > 0) {
+            robotPath.push(deliverySchedule_[idx][0]);
+        }
+    }
+    return robotPath;
+}
+
+function getItemIds(items) {
+    var itemIds = [];
+    for (idx in items) {
+        itemIds.push(items[idx].id);
+    }
+
+    return itemIds;
 }
 
 function getInitDeliverySchedule()
@@ -233,6 +257,145 @@ function getFIFOSchedule(callback) {
     });
 }
 
+function getSchedule(callback) {
+    if (status.nextLoading[0] + status.nextLoading[1] + status.nextLoading[2] == 0) {
+        idString = "(0";
+        for (idx in status.deliveryItemIds) {
+            idString += ", " + String(status.deliveryItemIds[idx]);
+        }
+        idString += ")";
+        sqlMethods.getItemsToDeliverNotInIdAll(connection, idString, function(err, rows) {
+            let items = rows;
+            let itemsToDeliver = [];
+            let totalItemCount = 40;
+            sqlMethods.getItemCount(connection, function(err, rows) {
+                for (var i = 0; i < rows.length; i++) {
+                    var order_id = rows[i].order_id;
+                    var itemCount = rows[i]['COUNT(*)'];
+                    for (var j = 0; j < items.length; j++) {
+                        console.log('i, j: ', i, j);
+                        if (items[j]['order_id'] == order_id) {
+                            for (var k = j; k < j + itemCount; k++) {
+                                itemsToDeliver.push(items[k]);
+                                totalItemCount -= 1;
+                                if (totalItemCount <= 0) {
+                                    break;
+                                }
+                            }
+                            break;
+                        }
+                    }
+                    if (totalItemCount <= 0) {
+                        break;
+                    }
+                }
+                var nextDeliverySchedule = getInitDeliverySchedule();
+                for (var i = 0; i < 20; i++) {
+                    if (itemsToDeliver[i].color == 'R') {
+                        nextDeliverySchedule[addressToIndex(itemsToDeliver[i].address)][1] += 1;
+                    } else if (itemsToDeliver[i].color == 'G') {
+                        nextDeliverySchedule[addressToIndex(itemsToDeliver[i].address)][2] += 1;
+                    } else if (itemsToDeliver[i].color == 'B') {
+                        nextDeliverySchedule[addressToIndex(itemsToDeliver[i].address)][3] += 1;
+                    }
+                }
+                status.nextDeliverySchedule = nextDeliverySchedule;
+                status.nextLoading = getNextLoading(status.nextDeliverySchedule);
+                status.nextRobotPath = getRobotPath(status.nextDeliverySchedule);
+                status.nextDeliveryItems = itemsToDeliver.slice(0,20);
+                status.nextDeliveryItemIds = getItemIds(status.nextDeliveryItems);
+
+                var nextNextDeliverySchedule = getInitDeliverySchedule();
+                for (var i = 20; i < 40 && i < itemsToDeliver.length; i++) {
+                    if (itemsToDeliver[i].color == 'R') {
+                        nextNextDeliverySchedule[addressToIndex(itemsToDeliver[i].address)][1] += 1;
+                    } else if (itemsToDeliver[i].color == 'G') {
+                        nextNextDeliverySchedule[addressToIndex(itemsToDeliver[i].address)][2] += 1;
+                    } else if (itemsToDeliver[i].color == 'B') {
+                        nextNextDeliverySchedule[addressToIndex(itemsToDeliver[i].address)][3] += 1;
+                    }
+                }
+                status.nextNextDeliverySchedule = nextNextDeliverySchedule;
+                status.nextNextLoading = getNextLoading(status.nextNextDeliverySchedule);
+                status.nextNextRobotPath = getRobotPath(status.nextNextDeliverySchedule);
+                status.nextNextDeliveryItems = itemsToDeliver.slice(20);
+                status.nextNextDeliveryItemIds = getItemIds(status.nextNextDeliveryItems);
+
+                // console.log('nextDeliverySchedule: ', status.nextDeliverySchedule);
+                // console.log('nextLoading: ', status.nextLoading);
+                // console.log('nextRobotPath: ', status.nextRobotPath);
+                // console.log('nextDeliveryItems: ', status.nextDeliveryItems);
+                // console.log('nextDeliveryItemIds: ', status.nextDeliveryItemIds);
+                // console.log('nextNextDeliverySchedule: ', status.nextNextDeliverySchedule);
+                // console.log('nextNextLoading: ', status.nextNextLoading);
+                // console.log('nextNextRobotPath: ', status.nextNextRobotPath);
+                // console.log('nextNextDeliveryItems: ', status.nextNextDeliveryItems);
+                // console.log('nextNextDeliveryItemIds: ', status.nextNextDeliveryItemIds);
+            });
+        });
+        // next, nextnext both scheduling
+    } else {
+        //nextNext only scheduling
+        idString = "(0";
+        for (idx in status.deliveryItemIds) {
+            idString += ", " + String(status.deliveryItemIds[idx]);
+        }
+        for (idx in status.nextDeliveryItemIds) {
+            idString += ", " + String(status.nextDeliveryItemIds[idx]);
+        }
+        idString += ")";
+        sqlMethods.getItemsToDeliverNotInIdAll(connection, idString, function(err, rows) {
+            let items = rows;
+            let itemsToDeliver = [];
+            let totalItemCount = 20;
+            sqlMethods.getItemCount(connection, function(err, rows) {
+                for (var i = 0; i < rows.length; i++) {
+                    var order_id = rows[i].order_id;
+                    var itemCount = rows[i]['COUNT(*)'];
+                    for (var j = 0; j < items.length; j++) {
+                        console.log('i, j: ', i, j);
+                        if (items[j]['order_id'] == order_id) {
+                            for (var k = j; k < j + itemCount; k++) {
+                                itemsToDeliver.push(items[k]);
+                                totalItemCount -= 1;
+                                if (totalItemCount <= 0) {
+                                    break;
+                                }
+                            }
+                            break;
+                        }
+                    }
+                    if (totalItemCount <= 0) {
+                        break;
+                    }
+                }
+
+                var nextNextDeliverySchedule = getInitDeliverySchedule();
+                for (var i = 0; i < 20 && i < itemsToDeliver.length; i++) {
+                    if (itemsToDeliver[i].color == 'R') {
+                        nextNextDeliverySchedule[addressToIndex(itemsToDeliver[i].address)][1] += 1;
+                    } else if (itemsToDeliver[i].color == 'G') {
+                        nextNextDeliverySchedule[addressToIndex(itemsToDeliver[i].address)][2] += 1;
+                    } else if (itemsToDeliver[i].color == 'B') {
+                        nextNextDeliverySchedule[addressToIndex(itemsToDeliver[i].address)][3] += 1;
+                    }
+                }
+                status.nextNextDeliverySchedule = nextNextDeliverySchedule;
+                status.nextNextLoading = getNextLoading(status.nextNextDeliverySchedule);
+                status.nextNextRobotPath = getRobotPath(status.nextNextDeliverySchedule);
+                status.nextNextDeliveryItems = itemsToDeliver.slice(20);
+                status.nextNextDeliveryItemIds = getItemIds(status.nextNextDeliveryItems);
+
+                console.log('nextNextDeliverySchedule: ', status.nextNextDeliverySchedule);
+                console.log('nextNextLoading: ', status.nextNextLoading);
+                console.log('nextNextRobotPath: ', status.nextNextRobotPath);
+                console.log('nextNextDeliveryItems: ', status.nextNextDeliveryItems);
+                console.log('nextNextDeliveryItemIds: ', status.nextNextDeliveryItemIds);
+            });
+        });
+    }
+}
+
 
 // function updateFillDate()
 // {
@@ -297,7 +460,7 @@ app.ws('/robot', function(ws, req) {
                         deliveryPath.push(deliverySchedule_[idx][0]);
                     }
                 }
-//                deliveryPath.push('stop');
+
                 status.nextRobotPath = deliveryPath;
                 // Send message to the robot.
                 status.needReschedule = false;
@@ -308,6 +471,7 @@ app.ws('/robot', function(ws, req) {
                 console.log('ws(/robot).onmessage getFIFOSchedule: needReschedule: ', status.needReschedule);
             });
         }
+
         status.robotMode = robotStatus.mode;
         status.robotLocation = robotStatus.location;
         
@@ -420,6 +584,9 @@ app.listen(serverPort, function() {
     console.log('App Listening on port 3000');
     status.robotMode = 'stop';
     console.log('at listen, mode: ', status.robotMode);
+
+    getSchedule();
+
     sqlMethods.getPendingOrders(connection, function(err, rows) {
         status.pendingOrders = Number(rows[0]['COUNT(*)']);
         sqlMethods.getPendingItems(connection, function(err, rows) {

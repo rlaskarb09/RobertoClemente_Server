@@ -89,6 +89,16 @@ function getItemsToDeliverNotInId(connection, idString, callback) {
     });
 }
 
+function getItemsToDeliverNotInIdAll(connection, idString, callback) {
+    var query = "SELECT * FROM ?? WHERE ?? = 0000-00-00 AND ?? NOT IN " + idString;
+    var params = ["ordered_items", "filldate", "id"];
+    query = mysql.format(query, params);
+    console.log(query);
+    connection.query(query, function(err, rows) {
+        callback(err, rows);
+    });
+}
+
 function orderedItemsFilldateById(connection, filldate, idString, callback) {
     var query = "UPDATE ?? SET ??=? WHERE id IN " + idString;
     var params = ["ordered_items", "filldate", filldate];
@@ -157,6 +167,16 @@ function getDeliveredItems(connection, callback) {
     });
 }
 
+function getItemCount(connection, callback) {
+    var query = "SELECT ??, COUNT(*) FROM ?? WHERE ?? = 0000-00-00 GROUP BY ?? ORDER BY COUNT(*)";
+    var params = ["order_id", "ordered_items", "filldate", "order_id"];
+    query = mysql.format(query, params);
+    connection.query(query, function(err, rows) {
+        callback(err, rows);
+    });
+}
+
+
 module.exports.getAllRows = getAllRows;
 module.exports.addOrder = addOrder;
 module.exports.addOrderedItems = addOrderedItems;
@@ -165,6 +185,7 @@ module.exports.getPendingOrders = getPendingOrders;
 module.exports.getDeliveredOrders = getDeliveredOrders;
 module.exports.getItemsToDeliver = getItemsToDeliver;
 module.exports.getItemsToDeliverNotInId = getItemsToDeliverNotInId;
+module.exports.getItemsToDeliverNotInIdAll = getItemsToDeliverNotInIdAll;
 module.exports.orderedItemsFilldateById = orderedItemsFilldateById;
 module.exports.ordersFilldate = ordersFilldate;
 module.exports.ordersFilldateByAddress = ordersFilldateByAddress;
@@ -172,3 +193,4 @@ module.exports.orderedItemsFilldateByAddress = orderedItemsFilldateByAddress;
 module.exports.getAvgDeliveryTime = getAvgDeliveryTime;
 module.exports.getPendingItems = getPendingItems;
 module.exports.getDeliveredItems = getDeliveredItems;
+module.exports.getItemCount = getItemCount;
