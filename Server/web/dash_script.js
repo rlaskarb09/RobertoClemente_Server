@@ -34,7 +34,6 @@ $(document).ready(function(){
 var pendingList = new Array();
 var pendingorder = parseInt(document.getElementById('pendingOrder').innerText);
 pendingList.push(pendingorder);
-console.log(pendingList)
 
 var orderChart = document.getElementById("orderChart").getContext("2d");
 
@@ -45,11 +44,16 @@ var cw = orderChart.canvas.width;
 var ch = orderChart.canvas.height;
 
 const wstep = Math.round(cw/12);
+const rowstep = Math.round(cw/60);
 const hstep = Math.round(ch/10);
+const colstep = Math.round(ch/100);
 
-var w = [0, wstep, 2*wstep, 3*wstep, 4*wstep, 5*wstep, 6*wstep, 7*wstep, 8*wstep, 9*wstep, 10*wstep, 11*wstep, 12*wstep];
-var h = [ch,ch-hstep,ch-2*hstep, ch-3*hstep, ch-4*hstep, ch-5*hstep, ch-6*hstep, ch-7*hstep, ch-8*hstep, ch-9*hstep, ch-10*hstep];
-
+var minW = [0, wstep, 2*wstep, 3*wstep, 4*wstep, 5*wstep, 6*wstep, 7*wstep, 8*wstep, 9*wstep, 10*wstep, 11*wstep, 12*wstep];
+const range = (start, stop, step) => Array.from({ length: (stop - start) / step + 1}, (_, i) => start + (i * step));
+var w = range(0,cw, rowstep);
+var valueH = [ch,ch-hstep,ch-2*hstep, ch-3*hstep, ch-4*hstep, ch-5*hstep, ch-6*hstep, ch-7*hstep, ch-8*hstep, ch-9*hstep, ch-10*hstep];
+var h = range(ch, 0, -colstep);
+console.log(h);
 var mins = ['5','10','15','20','25','30','35','40','45','50','55'];
 var values = [10,20,30,40,50,60,70,80,90,100];
 
@@ -69,48 +73,47 @@ for(var i = values.length-1;i>=0;i--){
 
 var ch = document.getElementById("orderChart");
 // draw pending orders
-//orderChart.beginPath();    
-//for(var i =0;i<w.length;i++){
-//    orderChart.moveTo(0, ch);
-//    orderChart.strokeStyle = '#004429';
-//    orderChart.lineWidth = 2;
+orderChart.beginPath();    
+for(var i =0;i<w.length;i++){
+   orderChart.moveTo(0, ch);
+   orderChart.strokeStyle = '#004429';
+   orderChart.lineWidth = 2;
+   orderChart.lineTo(w[i], h[pendingList[0]]);
 //    orderChart.lineTo(w[i], h[Math.floor((Math.random() * 9) + 1)]);
-//    orderChart.stroke();
-//}
-//// draw slope of pending orders
-//orderChart.beginPath();
-//for(var i =0;i<w.length;i++){
-//    orderChart.moveTo(0, ch);
-//    orderChart.strokeStyle = '#d59096';
-//    orderChart.lineWidth = 2;
-//    orderChart.lineTo(w[i], h[Math.floor((Math.random() * 9) + 1)]);
-//    orderChart.stroke();
-//}
-
+   orderChart.stroke();
+}
+// draw slope of pending orders
+orderChart.beginPath();
+for(var i =0;i<w.length;i++){
+   orderChart.moveTo(0, ch);
+   orderChart.strokeStyle = '#d59096';
+   orderChart.lineWidth = 2;
+   orderChart.lineTo(w[i], h[Math.floor((Math.random() * 100) + 1)]);
+   orderChart.stroke();
+}
 
 //vertical lines
 function gridV(){
-	for(var i =1;i<w.length-1;i++){
+	for(var i =1;i<minW.length-1;i++){
 		orderChart.strokeStyle = 'rgb(221, 222, 221)';
 		orderChart.lineWidth = 1;
-		orderChart.moveTo(w[i], 0);
-		orderChart.lineTo(w[i], 400);
+		orderChart.moveTo(minW[i], 0);
+		orderChart.lineTo(minW[i], 400);
 	  }
 	      orderChart.stroke();
   	  }
 
 //horizontal lines
 function gridH(){
-	for(var i =1;i<h.length-1;i++){
+	for(var i =1;i<valueH.length-1;i++){
 		orderChart.strokeStyle = 'rgb(221, 222, 221)';
 		orderChart.lineWidth = 1;
-		orderChart.moveTo(0,h[i]);
-		orderChart.lineTo(3000,h[i]);
+		orderChart.moveTo(0,valueH[i]);
+		orderChart.lineTo(3000,valueH[i]);
 	  }
 	      orderChart.stroke();
   	  }
 
-  
 gridV();
 gridH();
 
