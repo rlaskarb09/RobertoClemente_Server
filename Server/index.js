@@ -44,6 +44,7 @@ let status = {
     itemsOnStop: [26, 27, 25],
     itemsOnRobot: [0, 0, 0],
     pendingOrders: 0,
+    pendingOrderList: [0],
     pendingItems: 0,
     deliveredOrders: 0,
     avgDeliveryTime: 0,
