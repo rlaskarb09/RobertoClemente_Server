@@ -36,6 +36,7 @@ const maxItemNumbers = [26, 27, 25];
 let exerciseNum = 10;
 
 let status = {
+    isFirstSchedule: true,
     initialRobotConnection: false,
     robotConnected: false,
     robotStartTime: performance.now(),
@@ -471,9 +472,17 @@ app.ws('/robot', function(ws, req) {
         if (robotStatus.mode == 'stop') {
             // Robot is stopped on the stop sign
             if (robotStatus.location == 'stop') {
-                if (status.robotMode == 'move' || !status.initialRobotConnection) {  
+                if (status.robotMode == 'move') {  
                     status.initialRobotConnection = true;
+                    var scheduleStart = performance.now();
+                    getSchedule(function() {
+                        var scheduleEnd = perforamance.now();
+                        console.log('Scheduled, running time:', scheduleEnd - scheduleStart);
+                    });
+                }
+                else if (status.initialRobotConnection) {
                     if (status.pendingItems >= 30) {
+                        status.initialRobotConnection = true;
                         var scheduleStart = performance.now();
                         getSchedule(function() {
                             var scheduleEnd = perforamance.now();
