@@ -176,7 +176,7 @@ function gridHT(){
         timeChart.strokeStyle = "rgb(221, 222, 221)";
         timeChart.lineWidth = 1;
         timeChart.moveTo(0, timeH[i]);
-        timeChart.lineTo(4000, timeH[i]);
+        timeChart.lineTo(3000, timeH[i]);
     }
     timeChart.stroke();
 }

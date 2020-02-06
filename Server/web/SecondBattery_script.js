@@ -1,3 +1,4 @@
+// <-------------------FOR BATTERY------------------->
 // get first bettery start time
 var getString = document.getElementById('firstB').innerText;
 var getTime = getString.split(":");
@@ -13,7 +14,6 @@ var startMin2nd = getTime2nd[1];
 console.log(startMin2nd);
 
 $('#firstB_time').text('First Battery DONE!');
-
 
 // Display second battery remaining time
 $(document).ready(function(){
@@ -196,10 +196,6 @@ function gridHT(){
 }
 gridHT();
 gridVT();
-
-// <-------------------FOR BATTERY------------------->
-
-
 
 // <-------------------Draw Graph------------------->
 var timech = document.getElementById("timeChart");

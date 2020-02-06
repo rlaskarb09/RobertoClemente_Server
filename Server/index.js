@@ -16,7 +16,7 @@ let ejs = require('ejs');
 var connection = mysql.createConnection({
     host: 'localhost',
     user: 'root',
-    password: '',
+    password: 'Dltndk97!',
     database: 'orderdb',
     debug: false
 });
@@ -73,7 +73,8 @@ let status = {
     // updated when the load button pressed.
     nextNextDeliveryItemIds: [],
     downTime: 0,
-    robotMiantenanceStartTime: 0
+    robotMiantenanceStartTime: 0,
+    // update customer information
 };
 
 let messageToInventoryManager = {
@@ -416,13 +417,6 @@ function getSchedule(callback) {
     }
 }
 
-
-// function updateFillDate()
-// {
-
-//     var datetime = new Date().toLocaleString();
-// }
-
 connection.connect();
 
 app.ws('/inventory_manager', function(ws, req) {
@@ -478,9 +472,11 @@ app.ws('/robot', function(ws, req) {
             if (robotStatus.location == 'stop') {
                 if (status.robotMode == 'move' || !status.initialRobotConnection) {  
                     status.initialRobotConnection = true;
-                    getSchedule(function() {
-                        console.log('Scheduled');
-                    });
+                    if (status.pendingItems >= 30) {
+                        getSchedule(function() {
+                            console.log('Scheduled');
+                        });
+                    }
                 }
                 // When the load button is pressed, calculate the number of items on the robot and stop sign.
                 if (status.pendingOrders > 0  && status.nextCommand == 'startDelivery') {
@@ -549,6 +545,7 @@ app.ws('/robot', function(ws, req) {
                                     sqlMethods.getDeliveredOrders(connection, function(err, rows) {
                                         status.deliveredOrders = Number(rows[0]['COUNT(*)']);
                                         sqlMethods.getAvgDeliveryTime(connection, function(err, rows) {
+                                            console.log('avgDeliveryTime rows:', rows);
                                             status.avgDeliveryTime = Number(rows[0]['AVG(filldate-orderdate)']);
                                             ws.send(JSON.stringify(getMessageToRobot(status)));
                                             status.nextCommand = 'empty';    
@@ -662,21 +659,22 @@ app.get('/secondB', function(req, res){
 });
 
 app.get('/login',function(req,res){
-    res.render('custWeb_login', {exerciseNum: moment(Date.now()).format('YYYY-MM-DD HH:mm:ss'),
-                                loginLink: '/login',
+    res.render('custWeb_login', {loginLink: '/login',
                                 custLink: '/custInfo'});
-    // res.render('view', getMessageToDashboard());
 });
 
 app.post('/custInfo', (req,res)=>{
     id = req.body.loginId;
+    sqlMethods.getCustInfo(connection, id, function(err, rows) {
+        rows['loginLink'] = "/login";
+        rows['custLink'] = "/custInfo";
+        res.render('custWeb_info', {'rows':rows});
+    })
 });
 
 app.get('/custInfo',function(req,res){
-    res.render('custWeb_info', {exerciseNum: moment(Date.now()).format('YYYY-MM-DD HH:mm:ss'),
-                               loginLink: "/login",
+    res.render('custWeb_info', {loginLink: "/login",
                                 custLink: "/custInfo"});
-    // res.render('view', getMessageToDashboard());
 });
 
 app.get('/api/pending', function (req, res) {

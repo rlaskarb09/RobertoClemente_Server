@@ -176,7 +176,7 @@ function getItemCount(connection, callback) {
     });
 }
 
-function getCustInfo(connection, callback, name) {
+function getCustInfo(connection, name, callback) {
     var query = "SELECT * FROM ?? WHERE ?? = ?";
     var params = ["orders", "customer", name];
     query = mysql.format(query, params);
