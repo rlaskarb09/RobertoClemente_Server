@@ -24,17 +24,13 @@ h3{
     /* display:inline; */
     margin: 0;
 }
+p{
+    font-family: Noco_sans;
+}
 
 /*--------------------------For input Class--------------------------*/
-#dobby {
-/*    position:fixed;*/
-	object-position: 100px;
-    width:250px;
-    height:auto;
-}
 span.backlog{
     font-family: serif;
-   /* font-size:32px; */
     background-color : crimson;
     color:white;
     font-weight: bold;
@@ -50,19 +46,16 @@ span.total{
 }
 span.redItem{
     color:white;
-/*    font-size:30px;*/
     background-color: red;
     padding:5px;
 }
 span.greenItem{
     color:white;
-/*    font-size:30px;*/
     background-color: forestgreen;
     padding:5px;
 }
 span.blueItem{
     color:white;
-/*    font-size:30px;*/
     background-color: blue;
     padding:5px;
 }
@@ -79,7 +72,6 @@ span.blueItem{
     border: 1px solid rgb(0,70,42); 
     color: rgb(0,70,42); 
     padding: 5px;
-    
 }
 .btn_time:hover{
     color:white;
@@ -87,6 +79,10 @@ span.blueItem{
 }
 #firstB_time{
     font-size: 48px;
+    color:crimson;
+}
+#secondB_time{
+    font-size: 42px;
     color:crimson;
 }
 /*--------------------------For p Class--------------------------*/
@@ -158,6 +154,7 @@ span.blueItem{
 .main_battery{
 /*    width:33%;*/
     float:left;
+    margin: 0;
 }
 .order_graph{
     width:48%;

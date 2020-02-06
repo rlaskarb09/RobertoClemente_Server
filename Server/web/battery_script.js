@@ -1,9 +1,12 @@
+// get first bettery start time
+var getString = document.getElementById('firstB').innerText;
+var getTime = getString.split(":");
+var startHour = getTime[0];
+var startMin = getTime[1];
+
+// get running time 
 $(document).ready(function (){
     setInterval(function(){
-        var getString = document.getElementById('firstB').innerText;
-        var getTime = getString.split(":");
-        var startHour = getTime[0];
-        var startMin = getTime[1];
         var dt = new Date();
         var dh = dt.getHours();
         var dm = dt.getMinutes();
@@ -16,37 +19,6 @@ $(document).ready(function (){
     }, 1);
 });
 
-// <-------------------FOR BATTERY------------------->
-// $(document).ready(function(){
-//     setInterval(function(){
-//         var dt = new Date();
-//         var dh = dt.getHours();
-//         var dm = dt.getMinutes();
-//         $('#current_time').text('Current time : ' + dh + ':' + dm);
-//     },1);
-// });
-
-$(document).ready(function(){
-    var getString = document.getElementById('firstB').innerText;
-    var getTime = getString.split(":");
-    var startMin = getTime[1];
-    console.log(startMin);
-    setInterval(function(){
-        var dt = new Date();
-        var dm = dt.getMinutes();
-        final_time = parseInt(startMin) + 40;
-        if (final_time > 60 && dm < 30){
-            remain_time = final_time - 60 - dm;
-        }else{
-            remain_time = final_time - dm;
-        }
-        if (remain_time > 0){
-            $('#firstB_time').text('First battery REMAIN time : ' + remain_time);
-        } else{
-            $('#firstB_time').text('First Battery DONE!');
-        }
-    },1);
-});
 // <-------------------FOR ORDER CHART------------------->
 var getList = document.getElementById('pendingOrder').innerText;
 var pendingOrderList = getList.split(',');
@@ -57,7 +29,7 @@ $(document).ready(function(){
         var highBacklog = Math.max(backloglist);
         $('#highBacklog').text('Highest Backlog : ' + highBacklog);
     },1);
-})
+});
 var slopeList = new Array();
 if (pendingOrderList.length > 1){
     for(var i =0;i<pendingOrderList.length;i++){
@@ -158,7 +130,7 @@ for(var i =0;i<w.length;i++){
 // <-------------------FOR TIME CHART------------------->
 var deligetList = document.getElementById('avgDeliverytime').innerText;
 var avgDeliveryTList = deligetList.split(',');
-
+console.log(avgDeliveryTList);
 
 var timeChart = document.getElementById('timeChart').getContext("2d");
 
@@ -203,3 +175,45 @@ for(var i =0;i<tw.length;i++){
     timeChart.lineTo(tw[i], th[Math.floor((Math.random() * 9) + 1)]);
     timeChart.stroke();
 }
+
+// <-------------------FOR BATTERY------------------->
+// Display first battery remaining time
+$(document).ready(function(){
+    setInterval(function(){
+        var dt = new Date();
+        var dh = dt.getHours();
+        var dm = dt.getMinutes();
+        final_time = parseInt(startHour)*60 + parseInt(startMin) + 40;
+        current_time = dh*60 + dm;
+        remain_time = final_time - current_time;
+        // console.log(remain_time);
+        if (remain_time <= 40){
+            $('#firstB_time').text('First battery REMAIN time : ' + remain_time);
+        } else{
+            $('#firstB_time').text('First Battery DONE!');
+        }
+    },1);
+});
+// Display second battery remaining time
+$(document).ready(function(){
+    var getString2nd = document.getElementById('secondB').innerText;
+    // console.log(getString2nd);
+    var getTime2nd = getString2nd.split(':');
+    var startHour2nd = getTime2nd[0];
+    var startMin2nd = getTime2nd[1];
+    console.log(startMin2nd);
+    setInterval(function(){
+        var dt = new Date();
+        var dh = dt.getHours();
+        var dm = dt.getMinutes();
+        final_time2nd = parseInt(startHour2nd)*60 + parseInt(startMin2nd) + 40;
+        console.log(final_time2nd);
+        current_time = dh * 60 + dm;
+        remain_time2nd = final_time2nd - current_time;
+        if (remain_time2nd <= 40){
+            $('#secondB_time').text('Second battery REMAIN time : ' + remain_time2nd);
+        } else{
+            $('#secondB_time').text('Second Battery DONE!');
+        }
+    },1);
+})

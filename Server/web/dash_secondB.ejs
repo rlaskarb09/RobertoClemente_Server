@@ -24,7 +24,7 @@
                     <p class="info">Total Order : <span class="total" id="totalorder" ><%= totalOrders %></span></p>
                     <p class="info">Complete Orders : <span class="throughput"><%= deliveredOrders %></span></p>
                     <p class="info">Backlog : <span class="backlog"><%= pendingOrders %></span></p>
-                    <p class="info">Backlog Items : <span class="backlog"><%= pendingItems%></span></p>
+                    <p class="info" id="highBacklog"></p>
 			     </div>
                 <!-- Order class end -->
                 <div class="main_Robot">
@@ -49,8 +49,8 @@
                         </p>
                         <div class="battery" id="current_time"></div><br/>
                         <div class="battery" id="firstB" style="display: none"><%=firstB%></div>
-                        <div class="battery" id="firstB_time"></div>
-                        <div class = "battery" id="secondB" style="display: none"><%secondB%></div>
+                        <!-- <div class="battery" id="firstB_time"></div> -->
+                        <div class = "battery" id="secondB" style="display: none"><%=secondB%></div>
                         <div class = "battery" id="secondB_time"></div>
                     </div>
                     
@@ -74,6 +74,7 @@
                 <!-- order_graph class end -->
                 <div class="time_graph">
                     <h2>Time Graph</h2>
+                    <div id="avgDeliverytime" style="display:none"><%=avgDeliveryTime%></div>
                     <div id="timeChart-wrapper">
                         <div id="times"></div>
                         <canvas id="timeChart"></canvas>

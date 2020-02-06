@@ -644,6 +644,7 @@ app.post('/secondB', (req, res)=>{
     // secondB_time = req.body.secondB;
     secondB_time = moment(Date.now()).format('HH:mm');
     dashboard = getMessageToDashboard(status);
+    dashboard["firstB"] = firstB_time;
     dashboard['secondB'] = secondB_time;
     res.render('dash_secondB', dashboard);
 });
@@ -651,6 +652,7 @@ app.post('/secondB', (req, res)=>{
 app.get('/secondB', function(req, res){
     dashboard = getMessageToDashboard(status);
     if (secondB_time != null){
+        dashboard["firstB"] = firstB_time;
         dashboard["secondB"] = secondB_time;
     }
     res.render('dash_secondB', dashboard);

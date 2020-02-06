@@ -18,6 +18,7 @@
             <div class="TIME_container">
                 <h3 class="time" id="time"></h3>
             </div>
+            <!-- TIME_container end -->
             <div class="INFO_container">
                 <div class="main_Order">
                     <h2>Order</h2>
@@ -52,16 +53,14 @@
                         <div class="battery" id="firstB" style="display: none"><%=firstB%></div>
                         <div class="battery" id="firstB_time"></div>
                         <br/>
-                        <from action="/secondB" method="POST">
+                        <form action="/secondB" method="POST">
                             <p class = "battery" id = "second">
                                 Second battery 
                                 <!-- <input type="text" name = "secondB"> -->
                                 <button class="btn_time", type="submit" id = "secondS">START</button>
                             </p>
-                        </from>
-                        
+                        </form>
                     </div>
-                    
                 </div>
                 <!-- Others class end -->
             </div>

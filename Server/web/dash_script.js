@@ -1,15 +1,5 @@
-$(document).ready(function(){
-    setInterval(function(){
-        var dt = new Date();
-        var dh = dt.getHours();
-        var dm = dt.getMinutes();
-        $('#current_time').text('Current time : ' + dh + ':' + dm);
-    },1);
-});
-
 // <-------------------FOR ORDER CHART------------------->
 var slopeList = new Array();
-
 var orderChart = document.getElementById("orderChart").getContext("2d");
 
 orderChart.canvas.width = "1000";
@@ -53,6 +43,7 @@ for(var i = slopes.length-1;i>=0;i--){
     slope.appendChild(text_slope);
     document.getElementById('slopeValues').appendChild(slope);
 }
+
 // vertical lines
 function gridV(){
 	for(var i =1;i<minW.length-1;i++){
