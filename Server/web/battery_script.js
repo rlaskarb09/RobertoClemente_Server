@@ -1,3 +1,19 @@
+$(document).ready(function (){
+    setInterval(function(){
+        var start_time = parseInt(document.getElementById('firstB').innerText);
+        // console.log(start_time);
+        var dt = new Date();
+        var dm = dt.getMinutes();
+        if (dm > start_time){
+            running_time = dm-start_time;
+        } else{
+            running_time = 60-start_time+dm;
+        }
+        $('#time').text('Running Time : ' + running_time + 'mins');
+    }, 1);
+});
+
+// <-------------------FOR BATTERY------------------->
 $(document).ready(function(){
     setInterval(function(){
         var dt = new Date();
@@ -7,8 +23,32 @@ $(document).ready(function(){
     },1);
 });
 
+$(document).ready(function(){
+    var firstb_time = parseInt(document.getElementById('firstB').innerText);
+    setInterval(function(){
+        var dt = new Date();
+        var dm = dt.getMinutes();
+        final_time = firstb_time+40;
+        if (final_time > 60 && dm < 30){
+            remain_time = final_time-60-dm;
+        }else{
+            remain_time = final_time - dm;
+        }
+        $('#firstB_time').text('First battery REMAIN time : ' + remain_time);
+    },1);
+})
 // <-------------------FOR ORDER CHART------------------->
+var getList = document.getElementById('pendingOrder').innerText;
+var pendingOrderList = getList.split(',');
+
 var slopeList = new Array();
+if (pendingOrderList.length > 1){
+    for(var i =0;i<pendingOrderList.length;i++){
+        slope = pendingOrderList[i+1]-pendingOrderList[i];
+        slopeList.push(slope);
+    }
+}
+// console.log(slopeList);
 
 var orderChart = document.getElementById("orderChart").getContext("2d");
 
@@ -78,7 +118,31 @@ function gridH(){
 gridV();
 gridH();
 
+var ch = document.getElementById("orderChart");
+// draw pending orders
+orderChart.beginPath();    
+for(var i =0;i<w.length;i++){
+    orderChart.moveTo(0, ch);
+    orderChart.strokeStyle = '#004429';
+    orderChart.lineWidth = 3;
+    orderChart.lineTo(w[i], h[pendingOrderList[i]]);
+    orderChart.stroke();
+}
+// draw slope of pending orders
+orderChart.beginPath();
+for(var i =0;i<w.length;i++){
+    orderChart.moveTo(0, ch);
+    orderChart.strokeStyle = '#FF1800';
+    orderChart.lineWidth = 3;
+    orderChart.lineTo(w[i], h[slopeList[i]]);
+    orderChart.stroke();
+}
+
 // <-------------------FOR TIME CHART------------------->
+var deligetList = document.getElementById('avgDeliverytime').innerText;
+var avgDeliveryTList = deligetList.split(',');
+
+
 var timeChart = document.getElementById('timeChart').getContext("2d");
 
 timeChart.canvas.width = "1000";

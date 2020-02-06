@@ -2,6 +2,7 @@
 <html>
     <head>
         <meta charset="utf-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
         <title>Dash Board</title>
         <link href="./part/style/dash_style.css" type="text/css" rel="stylesheet"/>
         <link rel="shortcut icon" href="./part/style/favicon.ico">
@@ -13,13 +14,14 @@
 				<h1>Roberto Clemente</h1>
 			</div>
             <!-- title class end -->
-            
+            <div class="TIME_container">
+                <h3 class="time" id="time"></h3>
+            </div>
             <div class="INFO_container">
                 <div class="main_Order">
                     <h2>Order</h2>
                     <p class="info">Total Order : <span class="total" id="totalorder" ><%= totalOrders %></span></p>
                     <p class="info">Throughput : <span class="throughput"><%= deliveredOrders %></span></p>
-                    <br/>
                     <p class="info">Backlog : <span class="backlog"><%= pendingOrders %></span></p>
                     <p class="info">Backlog Items : <span class="backlog"><%= pendingItems%></span></p>
 <!--                    <div id="total_order"></div>    -->
@@ -32,7 +34,6 @@
                         R : <span class="redItem"><%= itemsOnStop[0] %></span> &nbsp;
                         G : <span class="greenItem"><%= itemsOnStop[1] %></span> &nbsp;
                         B : <span class="blueItem"><%= itemsOnStop[2] %></span></p>
-                    <br/>
                     <p class="info">Remaining items on Robot</p>
                     <p class="info">
                         R : <span class="redItem"><%= itemsOnRobot[0] %></span> &nbsp;
@@ -46,28 +47,27 @@
                         <p class="battery">
                             Robot Connection : <%= robotConnected %>
                         </p>
-                        <br/>
                         <div class="battery" id="current_time"></div>
                             <form action="/firstB" method="POST">
                                 <p class="battery" id = "first">
-                                    First Battery start time : <input type='text' name = 'firstB'>
-                                    <button type="submit" class="btn_time">START</button>
+                                    First Battery <input type='text' name = 'firstB'>
+                                    <button type="submit" class="btn_time" id="firstS">START</button>
                                 </p>
                             </form>
                     </div>
-                    
+                    <!-- main battery class end -->
                 </div>
                 <!-- Others class end -->
             </div>
             <!-- INFO_container end -->
-            
             <div class="GRAPH_container">
                 <div class="order_graph">
                     <h2>Order Graph</h2>
                     <div id="orderChart-wrapper">
-                        <div id="values"></div>
+                        <div id="pendingValues"></div>
                         <canvas id="orderChart"></canvas>
                         <div id="mins"></div>
+                        <div id="slopeValues"></div>
                     </div>
                 </div>
                 <!-- order_graph class end -->
@@ -82,14 +82,12 @@
                 <!-- time_graph class end -->
             </div>
             <!-- GRAPH_container end -->
-            
 			<div class="footer">
                 <p class="copyright">&copy;Roberto Clemente</p>
             </div>	
             <!-- footer class end -->
         </div>
         <script type="text/javascript" src="dash_script.js">
-            console.log(<%= robotBatteryTime %>)
         </script>
         
 	</body>

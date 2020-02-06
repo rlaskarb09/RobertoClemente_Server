@@ -4,7 +4,7 @@
         <meta charset="utf-8">
         <meta http-equiv="refresh" content="10;">
         <meta name="viewport" content="width=device-width, initial-scale=1.0">
-        <title>Dash Board (First BATTERY)</title>
+        <title>Dash Board (Second BATTERY)</title>
         <link href="./part/style/dash_style.css" type="text/css" rel="stylesheet"/>
         <link rel="shortcut icon" href="./part/style/favicon.ico">
         <script type="text/javascript" src="http://code.jquery.com/jquery-1.10.1.min.js"></script>
@@ -51,13 +51,10 @@
                         <div class="battery" id="firstB" style="display: none"><%=firstB%></div>
                         <div class="battery" id="firstB_time"></div>
                         <br/>
-                        <from action="/secondB" method="POST">
-                            <p class = "battery" id = "second">
-                                Second battery start time : <input type="text" name = "secondB">
-                                <button class="btn_time", type="submit">START</button>
-                            </p>
-                        </from>
-                        
+                        <p class = "battery" id = "second">
+                            Second battery &nbsp;
+                            <button class="btn_time", id="secondB" onclick="second(<%=robotBatteryTime%>)">START</button>
+                        </p>
                     </div>
                     
                 </div>
@@ -74,12 +71,12 @@
                         <canvas id="orderChart"></canvas>
                         <div id="mins"></div>
                         <div id="slopeValues"></div>
+                        
                     </div>
                 </div>
                 <!-- order_graph class end -->
                 <div class="time_graph">
                     <h2>Time Graph</h2>
-                    <div id="avgDeliverytime" style="display:none"><%=avgDeliveryTime%></div>
                     <div id="timeChart-wrapper">
                         <div id="times"></div>
                         <canvas id="timeChart"></canvas>

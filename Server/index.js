@@ -16,7 +16,7 @@ let ejs = require('ejs');
 var connection = mysql.createConnection({
     host: 'localhost',
     user: 'root',
-    password: '',
+    password: 'Dltndk97!',
     database: 'orderdb',
     debug: false
 });
@@ -119,7 +119,7 @@ function getMessageToInventoryManager(status) {
 function getMessageToDashboard(status) {
     return {
         robotConnected: status.robotConnected,
-        robotBatteryTime: getRobotBatteryTime(),
+        robotBatteryTime: getRobotBatteryTime(status),
         itemsOnStop: status.itemsOnStop,
         itemsOnRobot: status.itemsOnRobot,
         pendingOrders: status.pendingOrders,
@@ -592,6 +592,8 @@ app.get('/',function(req,res){
     res.render('dashboard', getMessageToDashboard(status));
 });
 
+var firstB_time = null;
+
 app.post('/firstB', (req, res)=>{
     firstB_time = req.body.firstB;
     dashboard = getMessageToDashboard(status);
@@ -600,6 +602,10 @@ app.post('/firstB', (req, res)=>{
 });
 
 app.get('/firstB', function(req, res){
+    dashboard = getMessageToDashboard(status);
+    if (firstB_time != null){
+        dashboard["firstB"] = firstB_time;
+    }
     res.render('dash_firstB', dashboard);
 })
 
@@ -608,6 +614,12 @@ app.get('/login',function(req,res){
                                 loginLink: '/login',
                                 custLink: '/custInfo'});
     // res.render('view', getMessageToDashboard());
+});
+
+app.post('/custInfo', (req,res)=>{
+    id = req.body.loginId;
+    
+    
 });
 
 app.get('/custInfo',function(req,res){
