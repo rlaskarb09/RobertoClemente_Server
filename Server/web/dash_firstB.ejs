@@ -2,7 +2,7 @@
 <html>
     <head>
         <meta charset="utf-8">
-        <meta http-equiv="refresh" content="2;">
+        <meta http-equiv="refresh" content="30;">
         <meta name="viewport" content="width=device-width, initial-scale=1.0">
         <title>Dash Board (First BATTERY)</title>
         <link href="./part/style/dash_style.css" type="text/css" rel="stylesheet"/>
@@ -69,8 +69,8 @@
             <div class="GRAPH_container">
                 <div class="order_graph">
                     <h2>Order Graph</h2>
-                    <div id="pendingList" style="display:none"><%=pendingOrderList%></div>
-                    <div id="deliveredList" style="display:none"><%=deliveredOrderList%></div>
+                    <p id="pendingList" style="display:none"><%=pendingOrderList%></p>
+                    <p id="deliveredList" style="display:none"><%=deliveredOrderList%></p>
                     <div id="orderChart-wrapper">
                         <div id="pendingValues"></div>
                         <canvas id="orderChart"></canvas>
@@ -85,7 +85,7 @@
                     <div id="timeChart-wrapper">
                         <div id="times"></div>
                         <canvas id="timeChart"></canvas>
-                        <div id="items"></div>
+                        <div id="minutes"></div>
                     </div>
                 </div>
                 <!-- time_graph class end -->
