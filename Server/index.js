@@ -406,7 +406,7 @@ function getSchedule(callback) {
                 status.nextNextDeliverySchedule = nextNextDeliverySchedule;
                 status.nextNextLoading = getNextLoading(status.nextNextDeliverySchedule);
                 status.nextNextRobotPath = getRobotPath(status.nextNextDeliverySchedule);
-                status.nextNextDeliveryItems = itemsToDeliver.slice(20);
+                status.nextNextDeliveryItems = itemsToDeliver.slice(0,20);
                 status.nextNextDeliveryItemIds = getItemIds(status.nextNextDeliveryItems);
 
                 console.log('nextNextDeliverySchedule: ', status.nextNextDeliverySchedule);
