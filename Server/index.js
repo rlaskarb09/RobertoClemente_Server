@@ -16,7 +16,7 @@ let ejs = require('ejs');
 var connection = mysql.createConnection({
     host: 'localhost',
     user: 'root',
-    password: '',
+    password: 'ehfpalvkthf',
     database: 'orderdb',
     debug: false
 });
@@ -134,7 +134,10 @@ function getMessageToDashboard(status) {
         deliveredOrders: status.deliveredOrders,
         avgDeliveryTime: status.avgDeliveryTime,
         totalOrders: status.pendingOrders + status.deliveredOrders,
-        pendingOrderList: status.pendingOrderList
+        pendingOrderList: status.pendingOrderList,
+        deliveredOrderList: status.deliveredOrderList,
+        downTimeList: status.downTownList,
+        avgDeliveryTimeList: status.avgDeliveryTimeList
     };
 }
 
