@@ -29,6 +29,16 @@ p{
 }
 
 /*--------------------------For input Class--------------------------*/
+#order_legend{
+    width: 250px;
+    height: auto;
+    margin-left: 100px;
+}
+#time_legend{
+    width: 300px;
+    height: auto;
+    margin-left: 150px;
+}
 span.backlog{
     font-family: serif;
     background-color : crimson;
@@ -98,7 +108,7 @@ span.blueItem{
 }
 .battery{
     font-size: 32px;
-    /* text-indent:150px; */
+    text-indent:100px;
 /*    text-align : center;*/
 }
 .time{
@@ -184,12 +194,12 @@ span.blueItem{
 
 #orderChart-wrapper{
     position:absolute;
-    top:60%;
+    top:62%;
     left:5%;
 }
 #timeChart-wrapper{
     position:absolute;
-    top:60%;
+    top:62%;
     left:55%;
 }
 #orderChart{

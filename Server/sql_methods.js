@@ -47,6 +47,7 @@ function rowCount(connection, tableName, callback) {
     var query = "SELECT COUNT(*) FROM ??";
     var params = [tableName];
     query = mysql.format(query, params);
+    console.log(query);
     connection.query(query, function(err, rows) {
         callback(err, rows);
     });
@@ -56,6 +57,7 @@ function getPendingOrders(connection, callback) {
     var query = "SELECT COUNT(*) FROM ?? WHERE ?? = 1";
     var params = ['orders', 'pending'];
     query = mysql.format(query, params);
+    console.log(query);
     connection.query(query, function(err, rows) {
         callback(err, rows);
     });
@@ -74,6 +76,7 @@ function getItemsToDeliver(connection, idString, callback) {
     var query = "SELECT * FROM ?? WHERE ?? = 0000-00-00 limit 20";
     var params = ["ordered_items", "filldate"];
     query = mysql.format(query, params);
+    console.log(query);
     connection.query(query, function(err, rows) {
         callback(err, rows);
     });
@@ -144,6 +147,7 @@ function getAvgDeliveryTime(connection, callback) {
     var query = "SELECT AVG(??-??) from ?? WHERE ??=?";
     var params = ["filldate", "orderdate", "orders", "pending", 0];
     query = mysql.format(query, params);
+    console.log(query);
     connection.query(query, function(err, rows) {
         callback(err, rows);
     });
@@ -153,6 +157,7 @@ function getPendingItems(connection, callback) {
     var query = "SELECT COUNT(*) from ?? WHERE ??=0000-00-00";
     var params = ["ordered_items", "filldate"];
     query = mysql.format(query, params);
+    console.log(query);
     connection.query(query, function(err, rows) {
         callback(err, rows);
     });
@@ -162,6 +167,7 @@ function getDeliveredItems(connection, callback) {
     var query = "SELECT COUNT(*) from ?? WHERE ?? != 0000-00-00";
     var params = ["ordered_items", "filldate"];
     query = mysql.format(query, params);
+    console.log(query);
     connection.query(query, function(err, rows) {
         callback(err, rows);
     });
@@ -180,6 +186,7 @@ function getCustInfo(connection, name, callback) {
     var query = "SELECT * FROM ?? WHERE ?? = ?";
     var params = ["orders", "customer", name];
     query = mysql.format(query, params);
+    console.log(query);
     connection.query(query, function(err, rows) {
         callback(err, rows);
     });

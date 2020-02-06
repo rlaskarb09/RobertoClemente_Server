@@ -40,12 +40,20 @@ $(document).ready(function (){
 // <-------------------FOR ORDER CHART------------------->
 // get pending list
 var getList = document.getElementById('pendingList').innerText;
-var pendingOrderList = getList.split(',');
+var pendingOrderList = getList.split(',').map(Number);
+console.log(pendingOrderList);
 
 $(document).ready(function(){
-    var backloglist = parseInt(pendingOrderList);
+    var backloglist = pendingOrderList;
     setInterval(function(){
-        var highBacklog = Math.max(backloglist);
+        var highBacklog = 0
+        for(var i=0;i<backloglist.length;i++){
+            if (highBacklog < backloglist[i]){
+                highBacklog = backloglist[i];
+            } else{
+                highBacklog = highBacklog;
+            }
+        }
         $('#highBacklog').text('Highest Backlog : ' + highBacklog);
     },1);
 });
@@ -145,7 +153,7 @@ var th = range(tch, 0, -tcolstep);
 
 // x axis // y axis
 var minutes = ['5','10','15','20','25','30','35','40','45','50','55', 'Min(m)'];
-var times = [' 2', ' 4', ' 6', ' 8', '10', '12', '14', '16', '18', 'Sec(s)'];
+var times = [2, 4, 6, 8, 10, 12, 14, 16, 18, 'Sec(s)'];
 
 for(var i = 0;i<minutes.length;i++){
     var minute = document.createElement('span');

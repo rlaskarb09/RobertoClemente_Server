@@ -16,7 +16,7 @@ let ejs = require('ejs');
 var connection = mysql.createConnection({
     host: 'localhost',
     user: 'root',
-    password: '',
+    password: 'Dltndk97!',
     database: 'orderdb',
     debug: false
 });
@@ -345,16 +345,16 @@ function getSchedule(callback) {
                 status.nextNextDeliveryItems = itemsToDeliver.slice(20);
                 status.nextNextDeliveryItemIds = getItemIds(status.nextNextDeliveryItems);
                 callback();
-                // console.log('nextDeliverySchedule: ', status.nextDeliverySchedule);
-                // console.log('nextLoading: ', status.nextLoading);
-                // console.log('nextRobotPath: ', status.nextRobotPath);
-                // console.log('nextDeliveryItems: ', status.nextDeliveryItems);
-                // console.log('nextDeliveryItemIds: ', status.nextDeliveryItemIds);
-                // console.log('nextNextDeliverySchedule: ', status.nextNextDeliverySchedule);
-                // console.log('nextNextLoading: ', status.nextNextLoading);
-                // console.log('nextNextRobotPath: ', status.nextNextRobotPath);
-                // console.log('nextNextDeliveryItems: ', status.nextNextDeliveryItems);
-                // console.log('nextNextDeliveryItemIds: ', status.nextNextDeliveryItemIds);
+                console.log('nextDeliverySchedule: ', status.nextDeliverySchedule);
+                console.log('nextLoading: ', status.nextLoading);
+                console.log('nextRobotPath: ', status.nextRobotPath);
+                console.log('nextDeliveryItems: ', status.nextDeliveryItems);
+                console.log('nextDeliveryItemIds: ', status.nextDeliveryItemIds);
+                console.log('nextNextDeliverySchedule: ', status.nextNextDeliverySchedule);
+                console.log('nextNextLoading: ', status.nextNextLoading);
+                console.log('nextNextRobotPath: ', status.nextNextRobotPath);
+                console.log('nextNextDeliveryItems: ', status.nextNextDeliveryItems);
+                console.log('nextNextDeliveryItemIds: ', status.nextNextDeliveryItemIds);
             });
         });
         // next, nextnext both scheduling
@@ -425,7 +425,7 @@ app.ws('/inventory_manager', function(ws, req) {
     ws.category = 'inventory_manager';
     // when received the message
     ws.on('message', function(msg) {
-        console.log((performance.now() / 1000.0), 'message from IM: ', msg)
+        // console.log((performance.now() / 1000.0), 'message from IM: ', msg)
         if (msg === 'load') {
             status.nextCommand = 'startDelivery';
         } else if (msg === 'unload') {
@@ -442,7 +442,7 @@ app.ws('/inventory_manager', function(ws, req) {
         ws.send(JSON.stringify(getMessageToInventoryManager(status)));
     });
     ws.on('close', function(msg) {
-        console.log('inventory_manager websocket closed');
+        // console.log('inventory_manager websocket closed');
     });
 });
 
@@ -476,16 +476,16 @@ app.ws('/robot', function(ws, req) {
                     status.initialRobotConnection = true;
                     var scheduleStart = performance.now();
                     getSchedule(function() {
-                        var scheduleEnd = perforamance.now();
+                        var scheduleEnd = performance.now();
                         console.log('Scheduled, running time:', scheduleEnd - scheduleStart);
                     });
                 }
-                else if (status.initialRobotConnection) {
+                else if (status.initialRobotConnection == false) {
                     if (status.pendingItems >= 30) {
                         status.initialRobotConnection = true;
                         var scheduleStart = performance.now();
                         getSchedule(function() {
-                            var scheduleEnd = perforamance.now();
+                            var scheduleEnd = performance.now();
                             console.log('Scheduled, running time:', scheduleEnd - scheduleStart);
                         });
                     }
@@ -547,7 +547,6 @@ app.ws('/robot', function(ws, req) {
                     status.itemsOnRobot[1] -= status.deliverySchedule[addressToIndex(status.robotLocation)][2];
                     status.itemsOnRobot[2] -= status.deliverySchedule[addressToIndex(status.robotLocation)][3];
                     var filldate = moment(Date.now()).format('YYYY-MM-DD HH:mm:ss');
-                    console.log(filldate)
                     sqlMethods.orderedItemsFilldateById(connection, filldate, idString, function(err, rows) {
                         sqlMethods.ordersFilldate(connection, filldate, idString, function(err, rows) {
                             sqlMethods.getPendingOrders(connection, function(err, rows) {
@@ -557,7 +556,6 @@ app.ws('/robot', function(ws, req) {
                                     sqlMethods.getDeliveredOrders(connection, function(err, rows) {
                                         status.deliveredOrders = Number(rows[0]['COUNT(*)']);
                                         sqlMethods.getAvgDeliveryTime(connection, function(err, rows) {
-                                            console.log('avgDeliveryTime rows:', rows);
                                             status.avgDeliveryTime = Number(rows[0]['AVG(`filldate`-`orderdate`)']);
                                             ws.send(JSON.stringify(getMessageToRobot(status)));
                                             status.nextCommand = 'empty';    
@@ -597,7 +595,7 @@ app.ws('/robot', function(ws, req) {
     });
 
     ws.on('close', function(msg) {
-        console.log('robot websocket closed');
+        // console.log('robot websocket closed');
         status.robotConnected = false;
     });
 });
@@ -618,10 +616,6 @@ app.listen(serverPort, function() {
                 status.avgDeliveryTimeList.push(status.avgDeliveryTime);
                 status.deliveredOrderList.push(status.deliveredOrders);
                 status.downTimeList.push(status.downTime);
-                console.log(performance.now(), 'pendingOrderList updated: ', status.pendingOrderList);
-                console.log(performance.now(), 'avgDeliveryTimeList updated: ', status.avgDeliveryTimeList);
-                console.log(performance.now(), 'deliveredOrderList updated: ', status.deliveredOrderList);
-                console.log(performance.now(), 'downTimeList updated: ', status.downTimeList);
             }, 1000 * 60);
         });
     });
@@ -678,9 +672,11 @@ app.get('/login',function(req,res){
 app.post('/custInfo', (req,res)=>{
     id = req.body.loginId;
     sqlMethods.getCustInfo(connection, id, function(err, rows) {
-        rows['loginLink'] = "/login";
-        rows['custLink'] = "/custInfo";
-        res.render('custWeb_info', {'rows':rows});
+        console.log('rows:', rows, err);
+        var info_dict = {'rows':rows};
+        info_dict["loginLink"] = '/login';
+        info_dict["custLink"] = '/custInfo';
+        res.render('custWeb_info', info_dict);
     })
 });
 

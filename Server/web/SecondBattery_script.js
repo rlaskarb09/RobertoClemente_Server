@@ -158,14 +158,14 @@ var tw = range(0, tcw, trowstep);
 var timeH = [ch, ch-thstep, ch-2*thstep, ch-3*thstep, ch-4*thstep, ch-5*thstep, ch-6*thstep, ch-7*thstep, ch-8*thstep, ch-9*thstep, ch-10*thstep];
 var th = range(tch, 0, -tcolstep);
 
-var items = ['5', '15', '25', '35', '45', '55', '65', '75', '85', '95', '105'];
-var times = [2, 4, 6, 8, 10, 12, 14, 16, 18, 20];
+var minutes = ['5','10','15','20','25','30','35','40','45','50','55', 'Min(m)'];
+var times = [2, 4, 6, 8, 10, 12, 14, 16, 18, 'Sec(s)'];
 
-for(var i = 0;i<items.length;i++){
-    var item = document.createElement('span');
-    var text_item = document.createTextNode(items[i])
-    item.appendChild(text_item);
-    document.getElementById('items').appendChild(item);
+for(var i = 0;i<minutes.length;i++){
+    var minute = document.createElement('span');
+    var text_minute = document.createTextNode(minutes[i])
+    minute.appendChild(text_minute);
+    document.getElementById('minutes').appendChild(minute);
 }
 
 for(var i = times.length-1;i>=0;i--){
