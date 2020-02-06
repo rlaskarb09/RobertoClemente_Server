@@ -7,13 +7,13 @@ h1{
     margin :10px;
 }
 h2{
-    font-family: monospace;
+    font-family: Noco_sans;
     font-size: 42px;
     color: rgb(0,70,42);
     text-align: center;
 }
 p{
-    font-family:sans-serif;
+    font-family: Noco_sans;
     font-size: 36px;
 }
 /*--------------------------For input Class--------------------------*/
@@ -133,6 +133,13 @@ input.button:hover{
     font-family: 'pacificoregular';
     src: url('../style/pacifico_font/pacifico-webfont.woff2') format('woff2'),
          url('../style/pacifico_font/pacifico-webfont.woff') format('woff');
+    font-weight: normal;
+    font-style: normal;
+}
+@font-face {
+    font-family: 'Noco_sans';
+    src: url('../style/Noco_Sans/notosans-regular-webfont.woff2') format('woff2'),
+         url('../style/Noco_Sans/notosans-regular-webfont.woff') format('woff');
     font-weight: normal;
     font-style: normal;
 }

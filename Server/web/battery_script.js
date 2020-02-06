@@ -1,46 +1,63 @@
 $(document).ready(function (){
     setInterval(function(){
-        var start_time = parseInt(document.getElementById('firstB').innerText);
-        // console.log(start_time);
+        var getString = document.getElementById('firstB').innerText;
+        var getTime = getString.split(":");
+        var startHour = getTime[0];
+        var startMin = getTime[1];
         var dt = new Date();
+        var dh = dt.getHours();
         var dm = dt.getMinutes();
-        if (dm > start_time){
-            running_time = dm-start_time;
+        if (dh == startHour){
+            running_time = dm - startMin;
         } else{
-            running_time = 60-start_time+dm;
+            running_time = 60 - startMin + dm;
         }
-        $('#time').text('Running Time : ' + running_time + 'mins');
+        $('#time').text('Running Time : ' + running_time + ' mins');
     }, 1);
 });
 
 // <-------------------FOR BATTERY------------------->
-$(document).ready(function(){
-    setInterval(function(){
-        var dt = new Date();
-        var dh = dt.getHours();
-        var dm = dt.getMinutes();
-        $('#current_time').text('Current time : ' + dh + ':' + dm);
-    },1);
-});
+// $(document).ready(function(){
+//     setInterval(function(){
+//         var dt = new Date();
+//         var dh = dt.getHours();
+//         var dm = dt.getMinutes();
+//         $('#current_time').text('Current time : ' + dh + ':' + dm);
+//     },1);
+// });
 
 $(document).ready(function(){
-    var firstb_time = parseInt(document.getElementById('firstB').innerText);
+    var getString = document.getElementById('firstB').innerText;
+    var getTime = getString.split(":");
+    var startMin = getTime[1];
+    console.log(startMin);
     setInterval(function(){
         var dt = new Date();
         var dm = dt.getMinutes();
-        final_time = firstb_time+40;
+        final_time = parseInt(startMin) + 40;
         if (final_time > 60 && dm < 30){
-            remain_time = final_time-60-dm;
+            remain_time = final_time - 60 - dm;
         }else{
             remain_time = final_time - dm;
         }
-        $('#firstB_time').text('First battery REMAIN time : ' + remain_time);
+        if (remain_time > 0){
+            $('#firstB_time').text('First battery REMAIN time : ' + remain_time);
+        } else{
+            $('#firstB_time').text('First Battery DONE!');
+        }
     },1);
-})
+});
 // <-------------------FOR ORDER CHART------------------->
 var getList = document.getElementById('pendingOrder').innerText;
 var pendingOrderList = getList.split(',');
 
+$(document).ready(function(){
+    var backloglist = parseInt(pendingOrderList);
+    setInterval(function(){
+        var highBacklog = Math.max(backloglist);
+        $('#highBacklog').text('Highest Backlog : ' + highBacklog);
+    },1);
+})
 var slopeList = new Array();
 if (pendingOrderList.length > 1){
     for(var i =0;i<pendingOrderList.length;i++){

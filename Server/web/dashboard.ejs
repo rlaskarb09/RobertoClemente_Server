@@ -15,7 +15,7 @@
 			</div>
             <!-- title class end -->
             <div class="TIME_container">
-                <h3 class="time" id="time"></h3>
+                <h3 class="time" id="time">Running time : 0 mins</h3>
             </div>
             <div class="INFO_container">
                 <div class="main_Order">
@@ -47,10 +47,11 @@
                         <p class="battery">
                             Robot Connection : <%= robotConnected %>
                         </p>
-                        <div class="battery" id="current_time"></div>
+                        <!-- <div class="battery" id="current_time"></div> -->
                             <form action="/firstB" method="POST">
                                 <p class="battery" id = "first">
-                                    First Battery <input type='text' name = 'firstB'>
+                                    First Battery 
+                                    <!-- <input type='text' name = 'firstB'> -->
                                     <button type="submit" class="btn_time" id="firstS">START</button>
                                 </p>
                             </form>

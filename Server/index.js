@@ -595,7 +595,8 @@ app.get('/',function(req,res){
 var firstB_time = null;
 
 app.post('/firstB', (req, res)=>{
-    firstB_time = req.body.firstB;
+    // firstB_time = req.body.firstB;
+    firstB_time = moment(Date.now()).format('HH:mm');
     dashboard = getMessageToDashboard(status);
     dashboard["firstB"] = firstB_time;
     res.render('dash_firstB', dashboard);
@@ -607,7 +608,25 @@ app.get('/firstB', function(req, res){
         dashboard["firstB"] = firstB_time;
     }
     res.render('dash_firstB', dashboard);
-})
+});
+
+var secondB_time = null;
+
+app.post('/secondB', (req, res)=>{
+    // secondB_time = req.body.secondB;
+    secondB_time = moment(Date.now()).format('HH:mm');
+    dashboard = getMessageToDashboard(status);
+    dashboard['secondB'] = secondB_time;
+    res.render('dash_secondB', dashboard);
+});
+
+app.get('/secondB', function(req, res){
+    dashboard = getMessageToDashboard(status);
+    if (secondB_time != null){
+        dashboard["secondB"] = secondB_time;
+    }
+    res.render('dash_secondB', dashboard);
+});
 
 app.get('/login',function(req,res){
     res.render('custWeb_login', {exerciseNum: moment(Date.now()).format('YYYY-MM-DD HH:mm:ss'),
@@ -618,8 +637,6 @@ app.get('/login',function(req,res){
 
 app.post('/custInfo', (req,res)=>{
     id = req.body.loginId;
-    
-    
 });
 
 app.get('/custInfo',function(req,res){
