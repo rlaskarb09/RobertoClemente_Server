@@ -16,7 +16,7 @@ let ejs = require('ejs');
 var connection = mysql.createConnection({
     host: 'localhost',
     user: 'root',
-    password: 'Dltndk97!',
+    password: '',
     database: 'orderdb',
     debug: false
 });
@@ -119,6 +119,7 @@ function getMessageToInventoryManager(status) {
         robotMode: status.robotMode, 
         robotLocation: status.robotLocation,
         deliverySchedule: status.deliverySchedule,
+        nextDeliverySchedule: status.nextDeliverySchedule,
         nextLoading: status.nextLoading
     };
 }
@@ -473,8 +474,10 @@ app.ws('/robot', function(ws, req) {
                 if (status.robotMode == 'move' || !status.initialRobotConnection) {  
                     status.initialRobotConnection = true;
                     if (status.pendingItems >= 30) {
+                        var scheduleStart = performance.now();
                         getSchedule(function() {
-                            console.log('Scheduled');
+                            var scheduleEnd = perforamance.now();
+                            console.log('Scheduled, running time:', scheduleEnd - scheduleStart);
                         });
                     }
                 }
@@ -546,7 +549,7 @@ app.ws('/robot', function(ws, req) {
                                         status.deliveredOrders = Number(rows[0]['COUNT(*)']);
                                         sqlMethods.getAvgDeliveryTime(connection, function(err, rows) {
                                             console.log('avgDeliveryTime rows:', rows);
-                                            status.avgDeliveryTime = Number(rows[0]['AVG(filldate-orderdate)']);
+                                            status.avgDeliveryTime = Number(rows[0]['AVG(`filldate`-`orderdate`)']);
                                             ws.send(JSON.stringify(getMessageToRobot(status)));
                                             status.nextCommand = 'empty';    
                                         });
