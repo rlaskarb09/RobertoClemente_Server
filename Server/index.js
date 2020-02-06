@@ -16,7 +16,7 @@ let ejs = require('ejs');
 var connection = mysql.createConnection({
     host: 'localhost',
     user: 'root',
-    password: 'Dltndk97!',
+    password: '',
     database: 'orderdb',
     debug: false
 });
@@ -36,6 +36,7 @@ const maxItemNumbers = [26, 27, 25];
 let exerciseNum = 10;
 
 let status = {
+    initialRobotConnection: false,
     robotConnected: false,
     robotStartTime: performance.now(),
     robotMode:'stop',
@@ -45,6 +46,9 @@ let status = {
     itemsOnRobot: [0, 0, 0],
     pendingOrders: 0,
     pendingOrderList: [0],
+    avgDeliveryTimeList: [0],
+    deliveredOrderList: [0],
+    downTimeList: [0],
     pendingItems: 0,
     deliveredOrders: 0,
     avgDeliveryTime: 0,
@@ -67,7 +71,9 @@ let status = {
     nextNextRobotPath: [],
     nextNextLoading: [0, 0, 0],
     // updated when the load button pressed.
-    nextNextDeliveryItemIds: []
+    nextNextDeliveryItemIds: [],
+    downTime: 0,
+    robotMiantenanceStartTime: 0
 };
 
 let messageToInventoryManager = {
@@ -120,6 +126,7 @@ function getMessageToDashboard(status) {
     return {
         robotConnected: status.robotConnected,
         robotBatteryTime: getRobotBatteryTime(status),
+        downTime: status.downTime,
         itemsOnStop: status.itemsOnStop,
         itemsOnRobot: status.itemsOnRobot,
         pendingOrders: status.pendingOrders,
@@ -285,7 +292,6 @@ function getSchedule(callback) {
                     var order_id = rows[i].order_id;
                     var itemCount = rows[i]['COUNT(*)'];
                     for (var j = 0; j < items.length; j++) {
-                        console.log('i, j: ', i, j);
                         if (items[j]['order_id'] == order_id) {
                             for (var k = j; k < j + itemCount; k++) {
                                 itemsToDeliver.push(items[k]);
@@ -365,7 +371,6 @@ function getSchedule(callback) {
                     var order_id = rows[i].order_id;
                     var itemCount = rows[i]['COUNT(*)'];
                     for (var j = 0; j < items.length; j++) {
-                        console.log('i, j: ', i, j);
                         if (items[j]['order_id'] == order_id) {
                             for (var k = j; k < j + itemCount; k++) {
                                 itemsToDeliver.push(items[k]);
@@ -451,37 +456,54 @@ app.ws('/robot', function(ws, req) {
             status.robotStartTime = performance.now();
         }
         console.log((performance.now() / 1000.0), 'From robot: ', msg);
-        // Clear the timer
-        // clearInterval(robotConnectionTimer);
-        // robotConnectionTimer = setInterval(function() {
-        //     console.log('robot disconnected: ', performance.now() / 1000.0);
-        //     status.robotMode = 'maintenance';
-        // }, robotLimitTime);
 
         // Get robot status
         var robotStatus = JSON.parse(msg);
 
+        // if robot starts maintenance mode, update status.robotMaintenanceStartTime
+        if (status.robotMode != 'maintenance' && robotStatus.mode == 'maintenance') {
+            status.robotMaintenanceStartTime = performance.now();
+        }
 
+        else if (status.robotMode != 'maintenance' && robotStatus.mode == 'maintenance') {
+            status.downTime += (performance.now() - status.downTime) / 1000;
+            status.robotMaintenanceStartTime = 0;
+        }
         
         if (robotStatus.mode == 'stop') {
             // Robot is stopped on the stop sign
             if (robotStatus.location == 'stop') {
-                if (status.robotLocation == 'move') {  
+                if (status.robotMode == 'move' || !status.initialRobotConnection) {  
+                    status.initialRobotConnection = true;
                     getSchedule(function() {
                         console.log('Scheduled');
                     });
                 }
                 // When the load button is pressed, calculate the number of items on the robot and stop sign.
                 if (status.pendingOrders > 0  && status.nextCommand == 'startDelivery') {
+
+                    status.deliverySchedule = JSON.parse(JSON.stringify(status.nextDeliverySchedule));
+                    status.robotPath = JSON.parse(JSON.stringify(status.nextRobotPath));
+                    status.deliveryItems = JSON.parse(JSON.stringify(status.nextDeliveryItems));
                     status.deliveryItemIds = JSON.parse(JSON.stringify(status.nextDeliveryItemIds));
+
+                    status.nextDeliverySchedule = JSON.parse(JSON.stringify(status.nextNextDeliverySchedule));
+                    status.nextRobotPath = JSON.parse(JSON.stringify(status.nextNextRobotPath));
+                    status.nextDeliveryItems = JSON.parse(JSON.stringify(status.nextNextDeliveryItems));
+                    status.nextDeliveryItemIds = JSON.parse(JSON.stringify(status.nextNextDeliveryItemIds));
+                    status.nextLoading = JSON.parse(JSON.stringify(status.nextNextLoading));
+
                     for (schedule in status.deliverySchedule) {
-                        status.itemsOnStop[0] -= schedule[1];
-                        status.itemsOnStop[1] -= schedule[2];
-                        status.itemsOnStop[2] -= schedule[3];
-                        status.itemsOnRobot[0] += schedule[1];
-                        status.itemsOnRobot[1] += schedule[2];
-                        status.itemsOnRobot[2] += schedule[3];
+                        status.itemsOnStop[0] -= status.deliverySchedule[schedule][1];
+                        status.itemsOnStop[1] -= status.deliverySchedule[schedule][2];
+                        status.itemsOnStop[2] -= status.deliverySchedule[schedule][3];
+                        status.itemsOnRobot[0] += status.deliverySchedule[schedule][1];
+                        status.itemsOnRobot[1] += status.deliverySchedule[schedule][2];
+                        status.itemsOnRobot[2] += status.deliverySchedule[schedule][3];
                     }
+                    console.log('status.itemsOnStop:', status.itemsOnStop);
+                    console.log('status.itemsOnRobot:', status.itemsOnRobot);
+
                     // Send message to the robot.
                     ws.send(JSON.stringify(getMessageToRobot(status)));
                     status.nextCommand = 'empty';
@@ -580,8 +602,14 @@ app.listen(serverPort, function() {
             status.pendingItems = Number(rows[0]['COUNT(*)']);
             status.pendingOrderList = [status.pendingOrders];
             pendingOrderListTimer = setInterval(function() {
-                status.pendingOrderList.push(status.pendingOrders)
-                console.log(performance.now(), 'pendingOrderList updated: ', status.pendingOrderList)
+                status.pendingOrderList.push(status.pendingOrders);
+                status.avgDeliveryTimeList.push(status.avgDeliveryTime);
+                status.deliveredOrderList.push(status.deliveredOrders);
+                status.downTimeList.push(status.downTime);
+                console.log(performance.now(), 'pendingOrderList updated: ', status.pendingOrderList);
+                console.log(performance.now(), 'avgDeliveryTimeList updated: ', status.avgDeliveryTimeList);
+                console.log(performance.now(), 'deliveredOrderList updated: ', status.deliveredOrderList);
+                console.log(performance.now(), 'downTimeList updated: ', status.downTimeList);
             }, 1000 * 60);
         });
     });

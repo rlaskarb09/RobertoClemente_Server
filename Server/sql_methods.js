@@ -177,14 +177,13 @@ function getItemCount(connection, callback) {
 }
 
 function getCustInfo(connection, callback, name) {
-    var query = 'select * from orders where customer = <customer ?? >';
-    var params = [name];
+    var query = "SELECT * FROM ?? WHERE ?? = ?";
+    var params = ["orders", "customer", name];
     query = mysql.format(query, params);
     connection.query(query, function(err, rows) {
         callback(err, rows);
     });
 }
-
 
 module.exports.getAllRows = getAllRows;
 module.exports.addOrder = addOrder;
