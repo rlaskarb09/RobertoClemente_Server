@@ -49,7 +49,8 @@
                         </p>
                         <div class="battery" id="current_time"></div><br/>
                         <div class="battery" id="firstB" style="display: none"><%=firstB%></div>
-                        <!-- <div class="battery" id="firstB_time"></div> -->
+                        <div class="battery" id="firstB_time" style="color:black"></div>
+                        <br/>
                         <div class = "battery" id="secondB" style="display: none"><%=secondB%></div>
                         <div class = "battery" id="secondB_time"></div>
                     </div>
@@ -62,7 +63,8 @@
             <div class="GRAPH_container">
                 <div class="order_graph">
                     <h2>Order Graph</h2>
-                    <div id="pendingOrder" style="display:none"><%=pendingOrderList%></div>
+                    <div id="pendingList" style="display:none"><%=pendingOrderList%></div>
+                    <div id="deliveredList" style="display:none"><%=deliveredOrderList%></div>
                     <div id="orderChart-wrapper">
                         <div id="pendingValues"></div>
                         <canvas id="orderChart"></canvas>
@@ -74,7 +76,8 @@
                 <!-- order_graph class end -->
                 <div class="time_graph">
                     <h2>Time Graph</h2>
-                    <div id="avgDeliverytime" style="display:none"><%=avgDeliveryTime%></div>
+                    <div id="avgDeliverytimeList" style="display:none"><%=avgDeliveryTimeList%></div>
+                    <div id="downtimeList" style="display:none"><%=downTimeList%></div>
                     <div id="timeChart-wrapper">
                         <div id="times"></div>
                         <canvas id="timeChart"></canvas>
@@ -90,7 +93,7 @@
             </div>	
             <!-- footer class end -->
         </div>
-        <script type="text/javascript" src="battery_script.js">
+        <script type="text/javascript" src="SecondBattery_script.js">
         </script>
         
 	</body>

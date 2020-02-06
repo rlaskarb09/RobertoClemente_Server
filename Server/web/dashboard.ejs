@@ -23,7 +23,7 @@
                     <p class="info">Total Order : <span class="total" id="totalorder" ><%= totalOrders %></span></p>
                     <p class="info">Throughput : <span class="throughput"><%= deliveredOrders %></span></p>
                     <p class="info">Backlog : <span class="backlog"><%= pendingOrders %></span></p>
-                    <p class="info">Backlog Items : <span class="backlog"><%= pendingItems%></span></p>
+                    <p class="info" id="highBacklog"></p>
 <!--                    <div id="total_order"></div>    -->
 			     </div>
                 <!-- Order class end -->
@@ -68,11 +68,11 @@
             <div class="GRAPH_container">
                 <div class="order_graph">
                     <h2>Order Graph</h2>
+                    <div id="pendingList" style="display:none"><%=pendingOrderList%></div>
                     <div id="orderChart-wrapper">
                         <div id="pendingValues"></div>
                         <canvas id="orderChart"></canvas>
                         <div id="mins"></div>
-                        <div id="slopeValues"></div>
                     </div>
                 </div>
                 <!-- order_graph class end -->
