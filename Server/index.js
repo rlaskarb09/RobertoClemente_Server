@@ -134,7 +134,10 @@ function getMessageToDashboard(status) {
         deliveredOrders: status.deliveredOrders,
         avgDeliveryTime: status.avgDeliveryTime,
         totalOrders: status.pendingOrders + status.deliveredOrders,
-        pendingOrderList: status.pendingOrderList
+        pendingOrderList: status.pendingOrderList,
+        deliveredOrderList: status.deliveredOrderList,
+        downTimeList: status.downTownList,
+        avgDeliveryTimeList: status.avgDeliveryTimeList
     };
 }
 
