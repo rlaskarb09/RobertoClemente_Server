@@ -190,7 +190,7 @@ for(var i =0;i<orderW.length;i++){
     timeChart.moveTo(0, timech);
     timeChart.strokeStyle = '#004429';
     timeChart.lineWidth = 3;
-    timeChart.lineTo(orderW[i], th[avgDeliveryTList[i]]);
+    timeChart.lineTo(tw[i], th[avgDeliveryTList[i]]);
     timeChart.stroke();
 }
 
@@ -199,7 +199,7 @@ for(var i =0;i<orderW.length;i++){
     timeChart.moveTo(0, timech);
     timeChart.strokeStyle = '#FF1800';
     timeChart.lineWidth = 3;
-    timeChart.lineTo(orderW[i], th[downtimeList[i]]);
+    timeChart.lineTo(tw[i], th[downtimeList[i]]);
     timeChart.stroke();
 }
 
