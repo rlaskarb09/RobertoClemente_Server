@@ -176,9 +176,9 @@ function getDeliveredItems(connection, callback) {
     });
 }
 
-function getItemCount(connection, callback) {
-    var query = "SELECT ??, COUNT(*) FROM ?? WHERE ?? = 0000-00-00 GROUP BY ?? ORDER BY COUNT(*)";
-    var params = ["order_id", "ordered_items", "filldate", "order_id"];
+function getItemCount(connection, idString, callback) {
+    var query = "SELECT ??, COUNT(*) FROM ?? WHERE ?? = 0000-00-00 AND ?? NOT IN " + idString + " GROUP BY ?? ORDER BY COUNT(*)";
+    var params = ["order_id", "ordered_items", "filldate", "id", "order_id"];
     query = mysql.format(query, params);
     console.log(query);
     connection.query(query, function(err, rows) {

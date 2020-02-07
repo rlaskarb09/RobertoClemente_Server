@@ -29,10 +29,10 @@ app.use(express.static(__dirname+'/web'));
 app.set('view engine','ejs');
 app.set('views','./web');
 
-const robotLimitTime = 8000; //ms
-const serverPort = 3000;
-const maxItemNumbers = [26, 27, 25];
-const inventoryCapacity = 30;
+const ROBOT_LIMIT_TIME = 8000; //ms
+const SERVER_PORT = 3000;
+const MAX_ITEM_NUMBERS = [26, 27, 25];
+const INVENTORY_CAPACITY = 30;
 
 let exerciseNum = 10;
 
@@ -97,7 +97,7 @@ let messageToDashboard = {
 // let robotConnectionTimer = setInterval(function() {
 //     console.log('robot disconnected: ', performance.now() / 1000.0);
 //     status.robotMode = 'maintenance';
-// }, robotLimitTime);
+// }, ROBOT_LIMIT_TIME);
 
 let inventoryManagerTimer = setInterval(function() {
     expressWs.getWss('/inventory_manager').clients.forEach((wsInstance) => {
@@ -283,8 +283,69 @@ function getFIFOSchedule(callback) {
     });
 }
 
+function setNextDelivery(itemsToDeliver, status){
+    var nextDeliverySchedule = getInitDeliverySchedule();
+    for (var i = 0; i < INVENTORY_CAPACITY; i++) {
+        if (itemsToDeliver[i].color == 'R') {
+            nextDeliverySchedule[addressToIndex(itemsToDeliver[i].address)][1] += 1;
+        } else if (itemsToDeliver[i].color == 'G') {
+            nextDeliverySchedule[addressToIndex(itemsToDeliver[i].address)][2] += 1;
+        } else if (itemsToDeliver[i].color == 'B') {
+            nextDeliverySchedule[addressToIndex(itemsToDeliver[i].address)][3] += 1;
+        }
+    }
+    status.nextDeliverySchedule = nextDeliverySchedule;
+    status.nextLoading = getNextLoading(status.nextDeliverySchedule);
+    status.nextRobotPath = getRobotPath(status.nextDeliverySchedule);
+    status.nextDeliveryItems = itemsToDeliver.slice(0,INVENTORY_CAPACITY);
+    status.nextDeliveryItemIds = getItemIds(status.nextDeliveryItems);
+}
+
+function setNextNextDelivery(itemsToDeliver, status) {
+    var nextNextDeliverySchedule = getInitDeliverySchedule();
+    for (var i = 0; i < INVENTORY_CAPACITY && i < itemsToDeliver.length; i++) {
+        if (itemsToDeliver[i].color == 'R') {
+            nextNextDeliverySchedule[addressToIndex(itemsToDeliver[i].address)][1] += 1;
+        } else if (itemsToDeliver[i].color == 'G') {
+            nextNextDeliverySchedule[addressToIndex(itemsToDeliver[i].address)][2] += 1;
+        } else if (itemsToDeliver[i].color == 'B') {
+            nextNextDeliverySchedule[addressToIndex(itemsToDeliver[i].address)][3] += 1;
+        }
+    }
+    status.nextNextDeliverySchedule = nextNextDeliverySchedule;
+    status.nextNextLoading = getNextLoading(status.nextNextDeliverySchedule);
+    status.nextNextRobotPath = getRobotPath(status.nextNextDeliverySchedule);
+    status.nextNextDeliveryItems = itemsToDeliver.slice(0,INVENTORY_CAPACITY);
+    status.nextNextDeliveryItemIds = getItemIds(status.nextNextDeliveryItems);
+}
+
+function getItemsToDeliver(itemCounts, items, totalItemCount_) {
+    var totalItemCount = totalItemCount_;
+    var itemsToDeliver = [];
+    for (var i = 0; i < itemCounts.length; i++) {
+        var order_id = itemCounts[i].order_id;
+        var itemCount = itemCounts[i]['COUNT(*)'];
+        for (var j = 0; j < items.length; j++) {
+            if (items[j]['order_id'] == order_id) {
+                for (var k = j; k < j + itemCount; k++) {
+                    itemsToDeliver.push(items[k]);
+                    totalItemCount -= 1;
+                    if (totalItemCount <= 0) {
+                        break;
+                    }
+                }
+                break;
+            }
+        }
+        if (totalItemCount <= 0) {
+            break;
+        }
+    }
+    return itemsToDeliver;
+}
+
 function getSchedule(callback) {
-    if (status.nextLoading[0] + status.nextLoading[1] + status.nextLoading[2] == 0) {
+    if (status.nextNextLoading[0] + status.nextNextLoading[1] + status.nextNextLoading[2] == 0) {
         idString = "(0";
         for (idx in status.deliveryItemIds) {
             idString += ", " + String(status.deliveryItemIds[idx]);
@@ -292,71 +353,40 @@ function getSchedule(callback) {
         idString += ")";
         sqlMethods.getItemsToDeliverNotInIdAll(connection, idString, function(err, rows) {
             let items = rows;
-            let itemsToDeliver = [];
-            let totalItemCount = inventoryCapacity * 2;
-            sqlMethods.getItemCount(connection, function(err, rows) {
-                for (var i = 0; i < rows.length; i++) {
-                    var order_id = rows[i].order_id;
-                    var itemCount = rows[i]['COUNT(*)'];
-                    for (var j = 0; j < items.length; j++) {
-                        if (items[j]['order_id'] == order_id) {
-                            for (var k = j; k < j + itemCount; k++) {
-                                itemsToDeliver.push(items[k]);
-                                totalItemCount -= 1;
-                                if (totalItemCount <= 0) {
-                                    break;
-                                }
-                            }
-                            break;
-                        }
-                    }
-                    if (totalItemCount <= 0) {
-                        break;
-                    }
+            let totalItemCount = INVENTORY_CAPACITY * 2;
+            sqlMethods.getItemCount(connection, idString, function(err, rows) {
+                let itemCounts = rows;
+                console.log('getSchedule::else::counts.length:', rows.length);
+                console.log('getSchedule::else::counts:', rows);
+                if (itemCounts.length == 0) {
+                    status.nextDeliverySchedule = getInitDeliverySchedule();
+                    status.nextLoading = [0, 0, 0];
+                    status.nextRobotPath = [];
+                    status.nextDeliveryItems = [];
+                    status.nextDeliveryItemIds = [];
+                    status.nextNextDeliverySchedule = getInitDeliverySchedule();
+                    status.nextNextLoading = [0, 0, 0];
+                    status.nextNextRobotPath = [];
+                    status.nextNextDeliveryItems = [];
+                    status.nextNextDeliveryItemIds = [];
                 }
-                console.log('getSchedule::if::itemsToDeliver.length', itemsToDeliver.length);
-                var nextDeliverySchedule = getInitDeliverySchedule();
-                for (var i = 0; i < inventoryCapacity; i++) {
-                    if (itemsToDeliver[i].color == 'R') {
-                        nextDeliverySchedule[addressToIndex(itemsToDeliver[i].address)][1] += 1;
-                    } else if (itemsToDeliver[i].color == 'G') {
-                        nextDeliverySchedule[addressToIndex(itemsToDeliver[i].address)][2] += 1;
-                    } else if (itemsToDeliver[i].color == 'B') {
-                        nextDeliverySchedule[addressToIndex(itemsToDeliver[i].address)][3] += 1;
-                    }
+                else {
+                    let itemsToDeliver = getItemsToDeliver(itemCounts, items, totalItemCount * 2);
+                    console.log('getSchedule::if::itemsToDeliver.length', itemsToDeliver.length);
+                    setNextDelivery(itemsToDeliver, status);
+                    setNextNextDelivery(itemsToDeliver.slice(30,60), status);
                 }
-                status.nextDeliverySchedule = nextDeliverySchedule;
-                status.nextLoading = getNextLoading(status.nextDeliverySchedule);
-                status.nextRobotPath = getRobotPath(status.nextDeliverySchedule);
-                status.nextDeliveryItems = itemsToDeliver.slice(0,inventoryCapacity);
-                status.nextDeliveryItemIds = getItemIds(status.nextDeliveryItems);
-
-                var nextNextDeliverySchedule = getInitDeliverySchedule();
-                for (var i = inventoryCapacity; i < inventoryCapacity * 2 && i < itemsToDeliver.length; i++) {
-                    if (itemsToDeliver[i].color == 'R') {
-                        nextNextDeliverySchedule[addressToIndex(itemsToDeliver[i].address)][1] += 1;
-                    } else if (itemsToDeliver[i].color == 'G') {
-                        nextNextDeliverySchedule[addressToIndex(itemsToDeliver[i].address)][2] += 1;
-                    } else if (itemsToDeliver[i].color == 'B') {
-                        nextNextDeliverySchedule[addressToIndex(itemsToDeliver[i].address)][3] += 1;
-                    }
-                }
-                status.nextNextDeliverySchedule = nextNextDeliverySchedule;
-                status.nextNextLoading = getNextLoading(status.nextNextDeliverySchedule);
-                status.nextNextRobotPath = getRobotPath(status.nextNextDeliverySchedule);
-                status.nextNextDeliveryItems = itemsToDeliver.slice(inventoryCapacity);
-                status.nextNextDeliveryItemIds = getItemIds(status.nextNextDeliveryItems);
-                callback();
                 console.log('nextDeliverySchedule: ', status.nextDeliverySchedule);
                 console.log('nextLoading: ', status.nextLoading);
                 console.log('nextRobotPath: ', status.nextRobotPath);
-                console.log('nextDeliveryItems: ', status.nextDeliveryItems);
+                // console.log('nextDeliveryItems: ', status.nextDeliveryItems);
                 console.log('nextDeliveryItemIds: ', status.nextDeliveryItemIds);
                 console.log('nextNextDeliverySchedule: ', status.nextNextDeliverySchedule);
                 console.log('nextNextLoading: ', status.nextNextLoading);
                 console.log('nextNextRobotPath: ', status.nextNextRobotPath);
-                console.log('nextNextDeliveryItems: ', status.nextNextDeliveryItems);
+                // console.log('nextNextDeliveryItems: ', status.nextNextDeliveryItems);
                 console.log('nextNextDeliveryItemIds: ', status.nextNextDeliveryItemIds);
+                callback();
             });
         });
         // next, nextnext both scheduling
@@ -373,52 +403,29 @@ function getSchedule(callback) {
         console.log('idString:', idString);
         sqlMethods.getItemsToDeliverNotInIdAll(connection, idString, function(err, rows) {
             let items = rows;
-            let itemsToDeliver = [];
-            let totalItemCount = inventoryCapacity;
-            sqlMethods.getItemCount(connection, function(err, rows) {
-                console.log('getSchedule::else::items:', items);
+            let totalItemCount = INVENTORY_CAPACITY;
+            sqlMethods.getItemCount(connection, idString, function(err, rows) {
+                let itemCounts = rows;
+                console.log('getSchedule::else::counts.length:', rows.length);
                 console.log('getSchedule::else::counts:', rows);
-                for (var i = 0; i < rows.length; i++) {
-                    var order_id = rows[i].order_id;
-                    var itemCount = rows[i]['COUNT(*)'];
-                    for (var j = 0; j < items.length; j++) {
-                        if (items[j]['order_id'] == order_id) {
-                            for (var k = j; k < j + itemCount; k++) {
-                                itemsToDeliver.push(items[k]);
-                                totalItemCount -= 1;
-                                if (totalItemCount <= 0) {
-                                    break;
-                                }
-                            }
-                            break;
-                        }
-                    }
-                    if (totalItemCount <= 0) {
-                        break;
-                    }
+                if (itemCounts.length == 0) {
+                    status.nextNextDeliverySchedule = getInitDeliverySchedule();
+                    status.nextNextLoading = [0, 0, 0];
+                    status.nextNextRobotPath = [];
+                    status.nextNextDeliveryItems = [];
+                    status.nextNextDeliveryItemIds = [];
                 }
-                console.log('getSchedule::else::itemsToDeliver.length', itemsToDeliver.length);
-                var nextNextDeliverySchedule = getInitDeliverySchedule();
-                for (var i = 0; i < inventoryCapacity && i < itemsToDeliver.length; i++) {
-                    if (itemsToDeliver[i].color == 'R') {
-                        nextNextDeliverySchedule[addressToIndex(itemsToDeliver[i].address)][1] += 1;
-                    } else if (itemsToDeliver[i].color == 'G') {
-                        nextNextDeliverySchedule[addressToIndex(itemsToDeliver[i].address)][2] += 1;
-                    } else if (itemsToDeliver[i].color == 'B') {
-                        nextNextDeliverySchedule[addressToIndex(itemsToDeliver[i].address)][3] += 1;
-                    }
+                else {
+                    let itemsToDeliver = getItemsToDeliver(itemCounts, items, totalItemCount);
+                    console.log('getSchedule::else::itemsToDeliver.length', itemsToDeliver.length);
+                    setNextNextDelivery(itemsToDeliver, status);
                 }
-                status.nextNextDeliverySchedule = nextNextDeliverySchedule;
-                status.nextNextLoading = getNextLoading(status.nextNextDeliverySchedule);
-                status.nextNextRobotPath = getRobotPath(status.nextNextDeliverySchedule);
-                status.nextNextDeliveryItems = itemsToDeliver.slice(0,inventoryCapacity);
-                status.nextNextDeliveryItemIds = getItemIds(status.nextNextDeliveryItems);
-
                 console.log('nextNextDeliverySchedule: ', status.nextNextDeliverySchedule);
                 console.log('nextNextLoading: ', status.nextNextLoading);
                 console.log('nextNextRobotPath: ', status.nextNextRobotPath);
-                console.log('nextNextDeliveryItems: ', status.nextNextDeliveryItems);
+                // console.log('nextNextDeliveryItems: ', status.nextNextDeliveryItems);
                 console.log('nextNextDeliveryItemIds: ', status.nextNextDeliveryItemIds);
+                callback();
             });
         });
     }
@@ -440,9 +447,9 @@ app.ws('/inventory_manager', function(ws, req) {
         } else if (msg === 'operating') {
             status.nextCommand = 'move';
         } else if (msg === 'replenishment') {
-            status.itemsOnStop[0] = maxItemNumbers[0] - status.itemsOnRobot[0];
-            status.itemsOnStop[1] = maxItemNumbers[1] - status.itemsOnRobot[1];
-            status.itemsOnStop[2] = maxItemNumbers[2] - status.itemsOnRobot[2];
+            status.itemsOnStop[0] = MAX_ITEM_NUMBERS[0] - status.itemsOnRobot[0];
+            status.itemsOnStop[1] = MAX_ITEM_NUMBERS[1] - status.itemsOnRobot[1];
+            status.itemsOnStop[2] = MAX_ITEM_NUMBERS[2] - status.itemsOnRobot[2];
         }
         ws.send(JSON.stringify(getMessageToInventoryManager(status)));
     });
@@ -524,10 +531,15 @@ app.ws('/robot', function(ws, req) {
                     ws.send(JSON.stringify(getMessageToRobot(status)));
                     status.nextCommand = 'empty';
                 }
-                else {
+                else if (status.nextCommand == 'maintenance') {
                     // Send message to the robot.                    
                     ws.send(JSON.stringify(getMessageToRobot(status)));
                     status.nextCommand = 'empty';
+                }
+                else {
+                    // Send empty message to the robot.                    
+                    status.nextCommand = 'empty';
+                    ws.send(JSON.stringify(getMessageToRobot(status)));
                 }
             }
             // Robot is stopped next to the address
@@ -571,10 +583,15 @@ app.ws('/robot', function(ws, req) {
                         });
                     });
                 }
-                else {
-                    // Send message to the robot.
+                else if (status.nextCommand == 'maintenance') {
+                    // Send message to the robot.                    
                     ws.send(JSON.stringify(getMessageToRobot(status)));
                     status.nextCommand = 'empty';
+                }
+                else {
+                    // Send empty message to the robot.                    
+                    status.nextCommand = 'empty';
+                    ws.send(JSON.stringify(getMessageToRobot(status)));
                 }
             }
         }
@@ -605,7 +622,7 @@ app.ws('/robot', function(ws, req) {
     });
 });
 
-app.listen(serverPort, function() {
+app.listen(SERVER_PORT, function() {
     // execute getsomedata.
     console.log('App Listening on port 3000');
     status.robotMode = 'stop';
