@@ -16,7 +16,7 @@ let ejs = require('ejs');
 var connection = mysql.createConnection({
     host: 'localhost',
     user: 'root',
-    password: 'Dltndk97!',
+    password: '',
     database: 'orderdb',
     debug: false
 });
@@ -32,6 +32,7 @@ app.set('views','./web');
 const robotLimitTime = 8000; //ms
 const serverPort = 3000;
 const maxItemNumbers = [26, 27, 25];
+const inventoryCapacity = 30;
 
 let exerciseNum = 10;
 
@@ -292,7 +293,7 @@ function getSchedule(callback) {
         sqlMethods.getItemsToDeliverNotInIdAll(connection, idString, function(err, rows) {
             let items = rows;
             let itemsToDeliver = [];
-            let totalItemCount = 40;
+            let totalItemCount = inventoryCapacity * 2;
             sqlMethods.getItemCount(connection, function(err, rows) {
                 for (var i = 0; i < rows.length; i++) {
                     var order_id = rows[i].order_id;
@@ -313,8 +314,9 @@ function getSchedule(callback) {
                         break;
                     }
                 }
+                console.log('getSchedule::if::itemsToDeliver.length', itemsToDeliver.length);
                 var nextDeliverySchedule = getInitDeliverySchedule();
-                for (var i = 0; i < 20; i++) {
+                for (var i = 0; i < inventoryCapacity; i++) {
                     if (itemsToDeliver[i].color == 'R') {
                         nextDeliverySchedule[addressToIndex(itemsToDeliver[i].address)][1] += 1;
                     } else if (itemsToDeliver[i].color == 'G') {
@@ -326,11 +328,11 @@ function getSchedule(callback) {
                 status.nextDeliverySchedule = nextDeliverySchedule;
                 status.nextLoading = getNextLoading(status.nextDeliverySchedule);
                 status.nextRobotPath = getRobotPath(status.nextDeliverySchedule);
-                status.nextDeliveryItems = itemsToDeliver.slice(0,20);
+                status.nextDeliveryItems = itemsToDeliver.slice(0,inventoryCapacity);
                 status.nextDeliveryItemIds = getItemIds(status.nextDeliveryItems);
 
                 var nextNextDeliverySchedule = getInitDeliverySchedule();
-                for (var i = 20; i < 40 && i < itemsToDeliver.length; i++) {
+                for (var i = inventoryCapacity; i < inventoryCapacity * 2 && i < itemsToDeliver.length; i++) {
                     if (itemsToDeliver[i].color == 'R') {
                         nextNextDeliverySchedule[addressToIndex(itemsToDeliver[i].address)][1] += 1;
                     } else if (itemsToDeliver[i].color == 'G') {
@@ -342,7 +344,7 @@ function getSchedule(callback) {
                 status.nextNextDeliverySchedule = nextNextDeliverySchedule;
                 status.nextNextLoading = getNextLoading(status.nextNextDeliverySchedule);
                 status.nextNextRobotPath = getRobotPath(status.nextNextDeliverySchedule);
-                status.nextNextDeliveryItems = itemsToDeliver.slice(20);
+                status.nextNextDeliveryItems = itemsToDeliver.slice(inventoryCapacity);
                 status.nextNextDeliveryItemIds = getItemIds(status.nextNextDeliveryItems);
                 callback();
                 console.log('nextDeliverySchedule: ', status.nextDeliverySchedule);
@@ -368,11 +370,14 @@ function getSchedule(callback) {
             idString += ", " + String(status.nextDeliveryItemIds[idx]);
         }
         idString += ")";
+        console.log('idString:', idString);
         sqlMethods.getItemsToDeliverNotInIdAll(connection, idString, function(err, rows) {
             let items = rows;
             let itemsToDeliver = [];
-            let totalItemCount = 20;
+            let totalItemCount = inventoryCapacity;
             sqlMethods.getItemCount(connection, function(err, rows) {
+                console.log('getSchedule::else::items:', items);
+                console.log('getSchedule::else::counts:', rows);
                 for (var i = 0; i < rows.length; i++) {
                     var order_id = rows[i].order_id;
                     var itemCount = rows[i]['COUNT(*)'];
@@ -392,9 +397,9 @@ function getSchedule(callback) {
                         break;
                     }
                 }
-
+                console.log('getSchedule::else::itemsToDeliver.length', itemsToDeliver.length);
                 var nextNextDeliverySchedule = getInitDeliverySchedule();
-                for (var i = 0; i < 20 && i < itemsToDeliver.length; i++) {
+                for (var i = 0; i < inventoryCapacity && i < itemsToDeliver.length; i++) {
                     if (itemsToDeliver[i].color == 'R') {
                         nextNextDeliverySchedule[addressToIndex(itemsToDeliver[i].address)][1] += 1;
                     } else if (itemsToDeliver[i].color == 'G') {
@@ -406,7 +411,7 @@ function getSchedule(callback) {
                 status.nextNextDeliverySchedule = nextNextDeliverySchedule;
                 status.nextNextLoading = getNextLoading(status.nextNextDeliverySchedule);
                 status.nextNextRobotPath = getRobotPath(status.nextNextDeliverySchedule);
-                status.nextNextDeliveryItems = itemsToDeliver.slice(0,20);
+                status.nextNextDeliveryItems = itemsToDeliver.slice(0,inventoryCapacity);
                 status.nextNextDeliveryItemIds = getItemIds(status.nextNextDeliveryItems);
 
                 console.log('nextNextDeliverySchedule: ', status.nextNextDeliverySchedule);
@@ -464,7 +469,7 @@ app.ws('/robot', function(ws, req) {
             status.robotMaintenanceStartTime = performance.now();
         }
 
-        else if (status.robotMode != 'maintenance' && robotStatus.mode == 'maintenance') {
+        else if (status.robotMode == 'maintenance' && robotStatus.mode != 'maintenance') {
             status.downTime += (performance.now() - status.downTime) / 1000;
             status.robotMaintenanceStartTime = 0;
         }
@@ -472,7 +477,7 @@ app.ws('/robot', function(ws, req) {
         if (robotStatus.mode == 'stop') {
             // Robot is stopped on the stop sign
             if (robotStatus.location == 'stop') {
-                if (status.robotMode == 'move') {  
+                if (status.robotMode == 'move') {
                     status.initialRobotConnection = true;
                     var scheduleStart = performance.now();
                     getSchedule(function() {
@@ -481,7 +486,7 @@ app.ws('/robot', function(ws, req) {
                     });
                 }
                 else if (status.initialRobotConnection == false) {
-                    if (status.pendingItems >= 30) {
+                    if (status.pendingItems >= 40) {
                         status.initialRobotConnection = true;
                         var scheduleStart = performance.now();
                         getSchedule(function() {

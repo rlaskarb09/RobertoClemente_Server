@@ -5,6 +5,7 @@ function getAllRows(connection, tableName, callback) {
     var query = "SELECT * FROM ??";
     var params = [tableName];
     query = mysql.format(query,params);
+    console.log(query);
     connection.query(query, function(err,rows){
         callback(err, rows);
     });
@@ -67,6 +68,7 @@ function getDeliveredOrders(connection, callback) {
     var query = "SELECT COUNT(*) FROM ?? WHERE ?? = 0";
     var params = ['orders', 'pending'];
     query = mysql.format(query, params);
+    console.log(query);
     connection.query(query, function(err, rows) {
         callback(err, rows);
     });
@@ -128,7 +130,7 @@ function ordersFilldateByAddress(connection, filldate, address, callback) {
     var query = "UPDATE ?? SET ??=?, ??=? WHERE ??=?";
     var params = ["orders", "pending", 0, "filldate", filldate, "address", address];
     query = mysql.format(query, params);
-    
+    console.log(query);
     connection.query(query, function(err, rows) {
         callback(err, rows);
     })
@@ -138,6 +140,7 @@ function orderedItemsFilldateByAddress(connection, filldate, address, callback) 
     var query = "UPDATE ?? SET ??=? WHERE ??=?";
     var params = ["ordered_items", "filldate", filldate, "address", address];
     query = mysql.format(query, params);
+    console.log(query);
     connection.query(query, function(err, rows) {
         callback(err, rows);
     })
@@ -177,6 +180,7 @@ function getItemCount(connection, callback) {
     var query = "SELECT ??, COUNT(*) FROM ?? WHERE ?? = 0000-00-00 GROUP BY ?? ORDER BY COUNT(*)";
     var params = ["order_id", "ordered_items", "filldate", "order_id"];
     query = mysql.format(query, params);
+    console.log(query);
     connection.query(query, function(err, rows) {
         callback(err, rows);
     });
