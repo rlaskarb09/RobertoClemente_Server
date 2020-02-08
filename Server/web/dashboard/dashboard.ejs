@@ -2,31 +2,29 @@
 <html>
     <head>
         <meta charset="utf-8">
-        <!-- <meta http-equiv="refresh" content="1;"> -->
         <meta name="viewport" content="width=device-width, initial-scale=1.0">
-        <title>Dash Board (First BATTERY)</title>
-        <link href="./part/style/dash_style.css" type="text/css" rel="stylesheet"/>
+        <title>Dash Board</title>
+        <link href="./dashboard/dash_style.css" type="text/css" rel="stylesheet"/>
         <link rel="shortcut icon" href="./part/style/favicon.ico">
         <script type="text/javascript" src="http://code.jquery.com/jquery-1.10.1.min.js"></script>
     </head>
 	<body>
 		<div class="frame">
-            <div class="title">
+            <div class="title"> 
 				<h1>Roberto Clemente</h1>
 			</div>
             <!-- title class end -->
             <div class="TIME_container">
-                <h3 class="time" id="time"></h3>
+                <h3 class="time" id="time">Running time : 0 mins</h3>
             </div>
-            <!-- TIME_container end -->
             <div class="INFO_container">
                 <div class="main_Order">
                     <h2>Order</h2>
                     <p class="info">Total Order : <span class="total" id="totalorder" ><%= totalOrders %></span></p>
-                    <p class="info">Complete Orders : <span class="throughput"><%= deliveredOrders %></span></p>
+                    <p class="info">Throughput : <span class="throughput"><%= deliveredOrders %></span></p>
                     <p class="info">Backlog : <span class="backlog"><%= pendingOrders %></span></p>
                     <p class="info" id="highBacklog"></p>
-                    <!-- <p class="info">Backlog Items : <span class="backlog"><%= pendingItems%></span></p> -->
+<!--                    <div id="total_order"></div>    -->
 			     </div>
                 <!-- Order class end -->
                 <div class="main_Robot">
@@ -49,28 +47,28 @@
                         <p class="battery">
                             Robot Connection : <%= robotConnected %>
                         </p>
-                        <!-- <div class="battery" id="current_time"></div><br/> -->
-                        <div class="battery" id="firstB" style="display: none"><%=firstB%></div>
-                        <div class="battery" id="firstB_time"></div>
-                        <br/>
-                        <form action="/secondB" method="POST">
-                            <p class = "battery" id = "second">
-                                Second battery 
-                                <!-- <input type="text" name = "secondB"> -->
-                                <button class="btn_time", type="submit" id = "secondS">START</button>
+                        <!-- <div class="battery" id="current_time"></div> -->
+                        <form action="/firstB" method="POST">
+                            <p class="battery" id = "first">
+                                First Battery 
+                                <!-- <input type='text' name = 'firstB'> -->
+                                <button type="submit" class="btn_time" id="firstS">START</button>
                             </p>
                         </form>
+                        <p class="battery" id="second">
+                            Second Battery
+                            <button type="submit" class="btn_time" id="secondS">START</button>
+                        </p>
                     </div>
+                    <!-- main battery class end -->
                 </div>
                 <!-- Others class end -->
             </div>
             <!-- INFO_container end -->
-            
             <div class="GRAPH_container">
                 <div class="order_graph">
                     <h2>Order Graph</h2>
-                    <p id="pendingList" style="display:none"><%=pendingOrderList%></p>
-                    <p id="deliveredList" style="display:none"><%=deliveredOrderList%></p>
+                    <div id="pendingList" style="display:none"><%=pendingOrderList%></div>
                     <div id="orderChart-wrapper">
                         <div id="pendingValues"></div>
                         <canvas id="orderChart"></canvas>
@@ -81,8 +79,6 @@
                 <!-- order_graph class end -->
                 <div class="time_graph">
                     <h2>Time Graph</h2>
-                    <div id="avgDeliverytimeList" style="display:none"><%=avgDeliveryTimeList%></div>
-                    <div id="downtimeList" style="display:none"><%=downTimeList%></div>
                     <div id="timeChart-wrapper">
                         <div id="times"></div>
                         <canvas id="timeChart"></canvas>
@@ -93,13 +89,12 @@
                 <!-- time_graph class end -->
             </div>
             <!-- GRAPH_container end -->
-            
 			<div class="footer">
                 <p class="copyright">&copy;Roberto Clemente</p>
             </div>	
             <!-- footer class end -->
         </div>
-        <script type="text/javascript" src="FirstBattery_script.js">
+        <script type="text/javascript" src="./dashboard/dash_script.js">
         </script>
         
 	</body>

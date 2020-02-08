@@ -1,0 +1,70 @@
+<!DOCTYPE html>
+<html>
+	<head>
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <title>Customer Site</title>
+		<link href="../custWeb/custWeb_style.css" type="text/css" rel="stylesheet"/>
+        <link rel="shortcut icon" href="../part/style/favicon.ico">
+        <script type="text/javascript" src="http://code.jquery.com/jquery-1.10.1.min.js"></script>
+	</head>
+	<body>
+        <div id="mySidenav" class="sidenav">
+            <a href =:"javascript:void(0)" class="closebtn" onclick="closeNav()">&times;</a>
+            <a href="<%= loginLink%>">Login</a>
+            <a href="<%= custLink%>">Check Info</a>
+        </div>
+        <div class="frame">
+            <div class="title">
+                <h1>Roberto Clemente</h1>
+            </div>
+            <!-- title class end -->
+            <div class="container">
+                <div class="nav">
+                    <ul class = "nav-list">
+                        <li class="nav-menu"><a href= "<%= loginLink%>" class="nav-link">Login</a></li>
+                        <li class="nav-menu"><a href= "<%= custLink%>" class="nav-link">Check Info</a></li>
+                    </ul>
+                </div>
+                <!-- nav class end -->
+                <div class="content">
+                    <h2>Customer Information</h2>
+                    <img src="../part/style/person.png" alt='Customer Img' class='fixed' width='180'>
+                    <div class="info">
+                        <br/>
+                        <p id="ID">ID : <%=rows[0].id%></p>
+                        <p id="orderDate">Order Date : <%=rows[0].orderdate%></p>
+                        <p id="orderItems">Ordered Item : R - <%=rows[0].red%> G - <%=rows[0].green%> B - <%=rows[0].blue%></p>
+                        <p id="custAddress">Customer Address : <%=rows[0].address%></p>
+                        <p id="getorderProcess" style="display: none;"><%=rows[0].pending%></p>
+                        <p>Order Process : <span id="orderProcess"></span></p>
+                        <input type="button" name="btn1" value="Cancel Item" class="button">
+                    </div>
+                    <!-- info class end -->
+                </div>
+                <!-- content class end -->
+            </div>
+            <!-- container class end -->
+            <div class="footer">
+                <p class="copyright">&copy;Roberto Clemente</p>
+            </div>
+            <!-- footer class end -->
+        </div>
+        <!-- frame class end -->
+        <script>
+            function openNav(){
+                document.getElementById('mySidenav').style.width="250px";
+            }
+            function closeNav(){
+                document.getElementById('mySidenav').style.width="0";
+            }
+            var pendingStatus = document.getElementById('getorderProcess').innerHTML;
+            // console.log(pendingStatus);
+            if (pendingStatus == 1){
+                $('#orderProcess').text('Accept Order!');
+            }else{
+                $('#orderProcess').text('Order Delivered!')
+            }
+
+        </script>
+	</body>
+</html>
