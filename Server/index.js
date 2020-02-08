@@ -16,7 +16,7 @@ let ejs = require('ejs');
 var connection = mysql.createConnection({
     host: 'localhost',
     user: 'root',
-    password: '',
+    password: 'ehfpalvkthf',
     database: 'orderdb',
     debug: false
 });
@@ -33,6 +33,7 @@ const ROBOT_LIMIT_TIME = 8000; //ms
 const SERVER_PORT = 3000;
 const MAX_ITEM_NUMBERS = [26, 27, 25];
 const INVENTORY_CAPACITY = 30;
+const UPDATE_LIST_INTERVAL = 60 * 1000;
 
 let exerciseNum = 10;
 
@@ -54,7 +55,6 @@ let status = {
     pendingItems: 0,
     deliveredOrders: 0,
     avgDeliveryTime: 0,
-    needReschedule: true,
     // updated when the robot is on the stop sign
     deliverySchedule: getInitDeliverySchedule(),
     deliveryItems: [],
@@ -79,26 +79,6 @@ let status = {
     // update customer information
 };
 
-let messageToInventoryManager = {
-    robotMode: 'stop',
-    robotLocation: 'stop',
-    nextLoading: [0, 0, 0],
-    deliverySchedule: {},
-};
-
-let messageToDashboard = {
-    itemsOnStop: [26, 27, 25],
-    itemsOnRobot: [0, 0, 0],
-    pendingOrders: 0,
-    deliveredOrders: 0,
-    avgDeliveryTime: 0
-};
-
-// let robotConnectionTimer = setInterval(function() {
-//     console.log('robot disconnected: ', performance.now() / 1000.0);
-//     status.robotMode = 'maintenance';
-// }, ROBOT_LIMIT_TIME);
-
 let inventoryManagerTimer = setInterval(function() {
     expressWs.getWss('/inventory_manager').clients.forEach((wsInstance) => {
         if (wsInstance.readyState == 1 && wsInstance.category == 'inventory_manager') {
@@ -107,7 +87,7 @@ let inventoryManagerTimer = setInterval(function() {
     });
 }, 1000);
 
-let pendingOrderListTimer = null;
+let updateListTimer = null;
 
 function getMessageToRobot(status) {
     return {
@@ -596,13 +576,11 @@ app.ws('/robot', function(ws, req) {
             }
         }
         else if (robotStatus.mode == 'move') {
-            status.needReschedule = true;
             // Send message to the robot.
             ws.send(JSON.stringify(getMessageToRobot(status)));
             status.nextCommand = 'empty';
         }
         else if (robotStatus.mode == 'maintenance') {
-            status.needReschedule = true;
             // Send message to the robot.
             ws.send(JSON.stringify(getMessageToRobot(status)));
             status.nextCommand = 'empty';
@@ -633,12 +611,12 @@ app.listen(SERVER_PORT, function() {
         sqlMethods.getPendingItems(connection, function(err, rows) {
             status.pendingItems = Number(rows[0]['COUNT(*)']);
             status.pendingOrderList = [status.pendingOrders];
-            pendingOrderListTimer = setInterval(function() {
+            updateListTimer = setInterval(function() {
                 status.pendingOrderList.push(status.pendingOrders);
                 status.avgDeliveryTimeList.push(status.avgDeliveryTime);
                 status.deliveredOrderList.push(status.deliveredOrders);
                 status.downTimeList.push(status.downTime);
-            }, 1000 * 60);
+            }, UPDATE_LIST_INTERVAL);
         });
     });
 });
@@ -724,7 +702,6 @@ app.post('/api/neworder', function (req, res) {
     status.pendingItems += Number(req.body.red) + Number(req.body.green), Number(req.body.blue);
     sqlMethods.addOrder(connection, req.body.customer, req.body.red, req.body.blue, req.body.green, req.body.address,
     function(err, rows) {
-        status.needReschedule = true;
         if (err) {
             res.json({"Error" : true, "Message" : "Error executing MySQL query"});
         } else {
