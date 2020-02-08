@@ -34,6 +34,8 @@ const SERVER_PORT = 3000;
 const MAX_ITEM_NUMBERS = [26, 27, 25];
 const INVENTORY_CAPACITY = 24;
 const UPDATE_LIST_INTERVAL = 60 * 1000;
+const UPDATE_INVENTORY_MANAGER_INTERVAL = 1000;
+const DOWN_TIME_CHECK_INTERVAL = 1000;
 
 let exerciseNum = 10;
 
@@ -44,6 +46,7 @@ let status = {
     robotStartTime: performance.now(),
     robotMode:'stop',
     robotLocation: 'stop',
+    downTime: 0,
     nextCommand: 'empty',
     itemsOnStop: [26, 27, 25],
     itemsOnRobot: [0, 0, 0],
@@ -75,7 +78,7 @@ let status = {
     // updated when the load button pressed.
     nextNextDeliveryItemIds: [],
     downTime: 0,
-    robotMiantenanceStartTime: 0,
+    robotMaintenanceStartTime: 0,
     // update customer information
 };
 
@@ -85,9 +88,13 @@ let inventoryManagerTimer = setInterval(function() {
             wsInstance.send(JSON.stringify(getMessageToInventoryManager(status)));
         }
     });
-}, 1000);
+}, UPDATE_INVENTORY_MANAGER_INTERVAL);
 
-let updateListTimer = null;
+let downTimeCheckTimer = setInterval(function() {
+    if (status.robotMode == 'maintenancne' && status.initialRobotConnection) {
+        status.downtime += 1;
+    }
+}, DOWN_TIME_CHECK_INTERVAL);
 
 function getMessageToRobot(status) {
     return {
@@ -412,7 +419,7 @@ function getSchedule(callback) {
 }
 
 connection.connect();
-
+              
 app.ws('/inventory_manager', function(ws, req) {
     ws.category = 'inventory_manager';
     // when received the message
@@ -440,6 +447,7 @@ app.ws('/inventory_manager', function(ws, req) {
 
 app.ws('/robot', function(ws, req) {
     ws.category = 'robot';
+    status.initialRobotConnection = true;
     // when received the message
     ws.on('message', function(msg) {
         if (status.robotConnected == false) {
@@ -450,22 +458,11 @@ app.ws('/robot', function(ws, req) {
 
         // Get robot status
         var robotStatus = JSON.parse(msg);
-
-        // if robot starts maintenance mode, update status.robotMaintenanceStartTime
-        if (status.robotMode != 'maintenance' && robotStatus.mode == 'maintenance') {
-            status.robotMaintenanceStartTime = performance.now();
-        }
-
-        else if (status.robotMode == 'maintenance' && robotStatus.mode != 'maintenance') {
-            status.downTime += (performance.now() - status.downTime) / 1000;
-            status.robotMaintenanceStartTime = 0;
-        }
         
         if (robotStatus.mode == 'stop') {
             // Robot is stopped on the stop sign
             if (robotStatus.location == 'stop') {
                 if (status.robotMode == 'move') {
-                    status.initialRobotConnection = true;
                     var scheduleStart = performance.now();
                     getSchedule(function() {
                         var scheduleEnd = performance.now();
@@ -596,6 +593,8 @@ app.ws('/robot', function(ws, req) {
 
     ws.on('close', function(msg) {
         // console.log('robot websocket closed');
+        status.robotMode = 'maintenance';
+        status.robotMaintenanceStartTime = performance.now();
         status.robotConnected = false;
     });
 });
