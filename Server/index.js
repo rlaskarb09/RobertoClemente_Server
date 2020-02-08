@@ -16,7 +16,7 @@ let ejs = require('ejs');
 var connection = mysql.createConnection({
     host: 'localhost',
     user: 'root',
-    password: 'ehfpalvkthf',
+    password: '',
     database: 'orderdb',
     debug: false
 });
@@ -32,7 +32,7 @@ app.set('views','./web');
 const ROBOT_LIMIT_TIME = 8000; //ms
 const SERVER_PORT = 3000;
 const MAX_ITEM_NUMBERS = [26, 27, 25];
-const INVENTORY_CAPACITY = 30;
+const INVENTORY_CAPACITY = 24;
 const UPDATE_LIST_INTERVAL = 60 * 1000;
 
 let exerciseNum = 10;
@@ -623,7 +623,7 @@ app.listen(SERVER_PORT, function() {
 
 app.get('/',function(req,res){
 //    res.render('dashboard', {exerciseNum: moment(Date.now()).format('YYYY-MM-DD HH:mm:ss')});
-    res.render('dashboard', getMessageToDashboard(status));
+    res.render('./dashboard/dashboard', getMessageToDashboard(status));
 });
 
 var firstB_time = null;
@@ -633,7 +633,7 @@ app.post('/firstB', (req, res)=>{
     firstB_time = moment(Date.now()).format('HH:mm');
     dashboard = getMessageToDashboard(status);
     dashboard["firstB"] = firstB_time;
-    res.render('dash_firstB', dashboard);
+    res.render('./dashboard/dash_firstB', dashboard);
 });
 
 app.get('/firstB', function(req, res){
@@ -641,7 +641,7 @@ app.get('/firstB', function(req, res){
     if (firstB_time != null){
         dashboard["firstB"] = firstB_time;
     }
-    res.render('dash_firstB', dashboard);
+    res.render('./dashboard/dash_firstB', dashboard);
 });
 
 var secondB_time = null;
@@ -652,7 +652,7 @@ app.post('/secondB', (req, res)=>{
     dashboard = getMessageToDashboard(status);
     dashboard["firstB"] = firstB_time;
     dashboard['secondB'] = secondB_time;
-    res.render('dash_secondB', dashboard);
+    res.render('./dashboard/dash_secondB', dashboard);
 });
 
 app.get('/secondB', function(req, res){
@@ -661,11 +661,15 @@ app.get('/secondB', function(req, res){
         dashboard["firstB"] = firstB_time;
         dashboard["secondB"] = secondB_time;
     }
-    res.render('dash_secondB', dashboard);
+    res.render('./dashboard/dash_secondB', dashboard);
+});
+
+app.get('/custWeb', function(req, res){
+    res.render('./custWeb/custWeb_basic', {loginLink: '/login', custLink: '/custInfo'});
 });
 
 app.get('/login',function(req,res){
-    res.render('custWeb_login', {loginLink: '/login',
+    res.render('./custWeb/custWeb_login', {loginLink: '/login',
                                 custLink: '/custInfo'});
 });
 
@@ -676,12 +680,12 @@ app.post('/custInfo', (req,res)=>{
         var info_dict = {'rows':rows};
         info_dict["loginLink"] = '/login';
         info_dict["custLink"] = '/custInfo';
-        res.render('custWeb_info', info_dict);
+        res.render('./custWeb/custWeb_info', info_dict);
     })
 });
 
 app.get('/custInfo',function(req,res){
-    res.render('custWeb_info', {loginLink: "/login",
+    res.render('./custWeb/custWeb_info', {loginLink: "/login",
                                 custLink: "/custInfo"});
 });
 

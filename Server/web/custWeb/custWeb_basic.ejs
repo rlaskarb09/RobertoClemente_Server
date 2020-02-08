@@ -1,0 +1,32 @@
+<!DOCTYPE html>
+<html>
+	<head>
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <title>Customer Site</title>
+		<link href="./custWeb_style.css" type="text/css" rel="stylesheet"/>
+        <link rel="shortcut icon" href="../part/style/favicon.ico">
+        <script type="text/javascript" src="http://code.jquery.com/jquery-1.10.1.min.js"></script>
+	</head>
+	<body>
+        <div id="mySidenav" class="sidenav">
+            <a href ="javascript:void(0)" class="closebtn" onclick="closeNav()">&times;</a>
+            <br/>
+            <br/>
+            <a href="<%= loginLink%>">Login</a>
+            <a href="<%= custLink%>">My Order</a>
+        </div>
+        <!-- <h2>Animated Sidenav Example</h2> -->
+        <!-- <p>Click on the element below to open the side navigation menu.</p> -->
+        
+        <div class="frame">
+            <div class="title">
+                <span class="menubar" id="menubar" style="font-size:30px; cursor:pointer; color: white" onclick="openNav()">&#9776;</span>
+                <h1 class="page_name">Roberto Clemente</h1>
+                <button class="search" id="search">SEARCH</button><input id = "search" class="search" placeholder="Search...">
+            </div>
+        </div>
+        <script type="text/javascript" src="./custWeb_script.js">
+        </script>
+    </body>
+    
+</html>

@@ -303,15 +303,15 @@ bottom: 20px;
 /*--------------------------For font--------------------------*/
 @font-face {
     font-family: 'pacificoregular';
-    src: url('../style/pacifico_font/pacifico-webfont.woff2') format('woff2'),
-         url('../style/pacifico_font/pacifico-webfont.woff') format('woff');
+    src: url('../part/style/pacifico_font/pacifico-webfont.woff2') format('woff2'),
+         url('../part/style/pacifico_font/pacifico-webfont.woff') format('woff');
     font-weight: normal;
     font-style: normal;
 }
 @font-face {
     font-family: 'Noco_sans';
-    src: url('../style/Noco_Sans/notosans-regular-webfont.woff2') format('woff2'),
-         url('../style/Noco_Sans/notosans-regular-webfont.woff') format('woff');
+    src: url('../part/style/Noco_Sans/notosans-regular-webfont.woff2') format('woff2'),
+         url('../part/style/Noco_Sans/notosans-regular-webfont.woff') format('woff');
     font-weight: normal;
     font-style: normal;
 }
