@@ -43,6 +43,7 @@ let status = {
     isFirstSchedule: true,
     initialRobotConnection: false,
     robotConnected: false,
+    isAlreadyScheduled: false,
     robotStartTime: performance.now(),
     robotMode:'stop',
     robotLocation: 'stop',
@@ -424,7 +425,7 @@ app.ws('/inventory_manager', function(ws, req) {
     ws.category = 'inventory_manager';
     // when received the message
     ws.on('message', function(msg) {
-        // console.log((performance.now() / 1000.0), 'message from IM: ', msg)
+        console.log((performance.now() / 1000.0), 'message from IM: ', msg)
         if (msg === 'load') {
             status.nextCommand = 'startDelivery';
         } else if (msg === 'unload') {
@@ -446,6 +447,7 @@ app.ws('/inventory_manager', function(ws, req) {
 });
 
 app.ws('/robot', function(ws, req) {
+    console.log('connected')
     ws.category = 'robot';
     status.initialRobotConnection = true;
     // when received the message
@@ -466,18 +468,17 @@ app.ws('/robot', function(ws, req) {
                     var scheduleStart = performance.now();
                     getSchedule(function() {
                         var scheduleEnd = performance.now();
+                        status.isAlreadyScheduled = true;
                         console.log('Scheduled, running time:', scheduleEnd - scheduleStart);
                     });
                 }
-                else if (status.initialRobotConnection == false) {
-                    if (status.pendingItems >= 40) {
-                        status.initialRobotConnection = true;
+                else if (status.pendingItems >= 40 && !status.isAlreadyScheduled) {
                         var scheduleStart = performance.now();
                         getSchedule(function() {
                             var scheduleEnd = performance.now();
+                            status.isAlreadyScheduled = true;
                             console.log('Scheduled, running time:', scheduleEnd - scheduleStart);
                         });
-                    }
                 }
                 // When the load button is pressed, calculate the number of items on the robot and stop sign.
                 if (status.pendingOrders > 0  && status.nextCommand == 'startDelivery') {
@@ -521,6 +522,7 @@ app.ws('/robot', function(ws, req) {
             }
             // Robot is stopped next to the address
             else {
+                status.isAlreadyScheduled = false;
                 // when unload button is pressed, update the ordered_items table.
                 if (status.nextCommand == 'move' && status.robotPath.includes(status.robotLocation)){
                     var idString = "(";
