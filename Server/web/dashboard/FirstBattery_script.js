@@ -143,7 +143,7 @@ var tch = timeChart.canvas.height;
 const twstep = Math.round(tcw/12);
 const trowstep = Math.round(tcw/60);
 const thstep = Math.round(tch/10);
-const tcolstep = Math.round(tch/100);
+const tcolstep = Math.round(tch/120);
 
 var orderW = [0, twstep, 2*twstep, 3*twstep, 4*twstep, 5*twstep, 6*twstep, 7*twstep, 8*twstep, 9*twstep, 10*twstep, 11*twstep, 12*twstep];
 var tw = range(0, tcw, trowstep);
@@ -153,7 +153,7 @@ var th = range(tch, 0, -tcolstep);
 
 // x axis // y axis
 var minutes = ['5','10','15','20','25','30','35','40','45','50','55', 'Min(m)'];
-var times = [2, 4, 6, 8, 10, 12, 14, 16, 18, 'Sec(s)'];
+var times = [12, 24, 36, 48, 60, 72, 84, 96, 108, 'Sec(s)'];
 
 for(var i = 0;i<minutes.length;i++){
     var minute = document.createElement('span');
