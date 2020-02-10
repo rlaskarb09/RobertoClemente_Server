@@ -420,7 +420,7 @@ function getSchedule(callback) {
 }
 
 connection.connect();
-              
+
 app.ws('/inventory_manager', function(ws, req) {
     ws.category = 'inventory_manager';
     // when received the message
@@ -438,6 +438,27 @@ app.ws('/inventory_manager', function(ws, req) {
             status.itemsOnStop[0] = MAX_ITEM_NUMBERS[0] - status.itemsOnRobot[0];
             status.itemsOnStop[1] = MAX_ITEM_NUMBERS[1] - status.itemsOnRobot[1];
             status.itemsOnStop[2] = MAX_ITEM_NUMBERS[2] - status.itemsOnRobot[2];
+            status.nextCommand = 'empty';
+        } else if (msg == 'unloadFail') {
+            var idString = "(0";
+            for (idx in status.deliveryItemIds) {
+                idString += ", " + String(status.deliveryItemIds[idx]);
+            }
+            idString += ")";
+            sqlMethods.rollbackItemsById(connection, idString, function(err, rows) {
+                var orderIdString = "(0";
+                var orderIdSet = new Set();
+                status.deliveryItems.forEach(item => {
+                    orderIdSet.add(item.order_id);
+                });
+                orderIdSet.forEach(orderId => {
+                    orderIdString += ", " + String(orderId);
+                });
+                orderIdString += ")";
+                sqlMethods.rollbackOrdersById(connection, orderIdString, function(err, rows) {
+                    status.nextCommand = 'empty';
+                });
+            });
         }
         ws.send(JSON.stringify(getMessageToInventoryManager(status)));
     });

@@ -196,6 +196,26 @@ function getCustInfo(connection, name, callback) {
     });
 }
 
+function rollbackItemsById(connection, idString, callback) {
+    var query = "UPDATE ?? SET ?? = 0000-00-00 00:00:00 WHERE id IN " + idString;
+    var params = ["ordered_items", "filldate"];
+    query = mysql.format(query, params);
+    console.log(query);
+    connection.query(query, function(err, rows) {
+        callback(err, rows);
+    });
+}
+
+function rollbackOrdersById(connection, idString, callback) {
+    var query = "UPDATE ?? SET ?? = 0000-00-00 00:00:00, ?? = ? WHERE id IN " + idString;
+    var params = ["orders", "filldate", "pending", 1];
+    query = mysql.format(query, params);
+    console.log(query);
+    connection.query(query, function(err, rows) {
+        callback(err, rows);
+    });
+}
+
 module.exports.getAllRows = getAllRows;
 module.exports.addOrder = addOrder;
 module.exports.addOrderedItems = addOrderedItems;
@@ -214,3 +234,5 @@ module.exports.getPendingItems = getPendingItems;
 module.exports.getDeliveredItems = getDeliveredItems;
 module.exports.getItemCount = getItemCount;
 module.exports.getCustInfo = getCustInfo;
+module.exports.rollbackItemsById = rollbackItemsById;
+module.exports.rollbackOrdersById = rollbackOrdersById;
