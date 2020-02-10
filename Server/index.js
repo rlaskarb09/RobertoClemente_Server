@@ -552,7 +552,7 @@ app.ws('/robot', function(ws, req) {
                                     sqlMethods.getDeliveredOrders(connection, function(err, rows) {
                                         status.deliveredOrders = Number(rows[0]['COUNT(*)']);
                                         sqlMethods.getAvgDeliveryTime(connection, function(err, rows) {
-                                            status.avgDeliveryTime = Number(rows[0]['AVG(`filldate`-`orderdate`)']);
+                                            status.avgDeliveryTime = Number(rows[0]['AVG(TIMESTAMPDIFF(SECOND,`orderdate`,`filldate`))']);
                                             ws.send(JSON.stringify(getMessageToRobot(status)));
                                             status.nextCommand = 'empty';    
                                         });
@@ -613,7 +613,7 @@ app.listen(SERVER_PORT, function() {
             status.pendingItems = Number(rows[0]['COUNT(*)']);
             status.pendingOrderList = [status.pendingOrders];
             sqlMethods.getAvgDeliveryTime(connection, function(err, rows) {
-                status.avgDeliveryTime = Number(rows[0]['AVG(`filldate`-`orderdate`)']);
+                status.avgDeliveryTime = Number(rows[0]['AVG(TIMESTAMPDIFF(SECOND,`orderdate`,`filldate`))']);
                 status.avgDeliveryTimeList = [status.avgDeliveryTime];
                 updateListTimer = setInterval(function() {
                     status.pendingOrderList.push(status.pendingOrders);

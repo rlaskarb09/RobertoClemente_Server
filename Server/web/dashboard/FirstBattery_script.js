@@ -43,20 +43,32 @@ var getList = document.getElementById('pendingList').innerText;
 var pendingOrderList = getList.split(',').map(Number);
 console.log(pendingOrderList);
 
-$(document).ready(function(){
-    var backloglist = pendingOrderList;
-    setInterval(function(){
-        var highBacklog = 0
-        for(var i=0;i<backloglist.length;i++){
-            if (highBacklog < backloglist[i]){
-                highBacklog = backloglist[i];
-            } else{
-                highBacklog = highBacklog;
-            }
-        }
-        $('#highBacklog').text('Highest Backlog : ' + highBacklog);
-    },1);
-});
+var highBacklog = 0
+for (var i=0; i<pendingOrderList.length;i++){
+    if (highBacklog < pendingOrderList[i]){
+        highBacklog = pendingOrderList[i];
+    }else{
+        highBacklog = highBacklog;
+    }
+};
+$('#highBacklog').text('Highest Backlog : ' + highBacklog);
+
+// $(document).ready(function(){
+//     var backloglist = pendingOrderList;
+//     setInterval(function(){
+//         var highBacklog = 0
+//         for(var i=0;i<backloglist.length;i++){
+//             if (highBacklog < backloglist[i]){
+//                 highBacklog = backloglist[i];
+//             } else{
+//                 highBacklog = highBacklog;
+//             }
+//         }
+//         $('#highBacklog').text('Highest Backlog : ' + highBacklog);
+//     },1);
+// });
+
+// calculate highest backlog
 
 // get delivered list
 var getList = document.getElementById('deliveredList').innerText;
@@ -127,6 +139,10 @@ gridH();
 var getList = document.getElementById('avgDeliverytimeList').innerText;
 var avgDeliveryTList = getList.split(',');
 console.log(avgDeliveryTList);
+avgDeliveryTList = avgDeliveryTList.map(function(each_element){
+    return Number(Math.round(each_element/60));
+});
+console.log(avgDeliveryTList);
 
 var getList = document.getElementById('downtimeList').innerText;
 var downtimeList = getList.split(',');
@@ -143,17 +159,19 @@ var tch = timeChart.canvas.height;
 const twstep = Math.round(tcw/12);
 const trowstep = Math.round(tcw/60);
 const thstep = Math.round(tch/10);
-const tcolstep = Math.round(tch/120);
+const tcolstep = Math.round(tch/20);
 
 var orderW = [0, twstep, 2*twstep, 3*twstep, 4*twstep, 5*twstep, 6*twstep, 7*twstep, 8*twstep, 9*twstep, 10*twstep, 11*twstep, 12*twstep];
 var tw = range(0, tcw, trowstep);
 
 var timeH = [ch, ch-thstep, ch-2*thstep, ch-3*thstep, ch-4*thstep, ch-5*thstep, ch-6*thstep, ch-7*thstep, ch-8*thstep, ch-9*thstep, ch-10*thstep];
 var th = range(tch, 0, -tcolstep);
+console.log(th);
 
 // x axis // y axis
 var minutes = ['5','10','15','20','25','30','35','40','45','50','55', 'Min(m)'];
-var times = [12, 24, 36, 48, 60, 72, 84, 96, 108, 'Sec(s)'];
+// var times = [12, 24, 36, 48, 60, 72, 84, 96, 108, 'Sec(s)'];
+var times = [2, 4, 6, 8, 10, 12, 14, 16, 18, 'Min(m)'];
 
 for(var i = 0;i<minutes.length;i++){
     var minute = document.createElement('span');

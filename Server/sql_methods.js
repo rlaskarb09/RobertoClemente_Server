@@ -147,8 +147,8 @@ function orderedItemsFilldateByAddress(connection, filldate, address, callback) 
 }
 
 function getAvgDeliveryTime(connection, callback) {
-    var query = "SELECT AVG(??-??) from ?? WHERE ??=?";
-    var params = ["filldate", "orderdate", "orders", "pending", 0];
+    var query = "SELECT AVG(TIMESTAMPDIFF(SECOND,??,??)) FROM ?? WHERE ??=?";
+    var params = ["orderdate", "filldate", "orders", "pending", 0];
     query = mysql.format(query, params);
     console.log(query);
     connection.query(query, function(err, rows) {
