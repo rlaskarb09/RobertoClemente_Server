@@ -223,7 +223,7 @@ span.blueItem{
     display: inline-block;
     color:#004429;
     font-size:16px;
-    margin-left: 5px;
+    margin-left: 40px;
 }
 #mins>span:before {
 content: '';
@@ -240,11 +240,11 @@ bottom: 20px;
     margin-left:60px;
 }
 #minutes>span{
-    width: 58px;
+    width:60px;
     display: inline-block;
     color:#004429;
     font-size:16px;
-    margin-left: 25px;
+    margin-left: 40px;
 }
 #minutes>span:before {
 content: '';

@@ -82,18 +82,18 @@ orderChart.canvas.height = "400";
 var cw = orderChart.canvas.width;
 var ch = orderChart.canvas.height;
 
-const wstep = Math.round(cw/15);
-const rowstep = Math.round(cw/60);
+const wstep = Math.round(cw/10);
+const rowstep = Math.round(cw/100);
 const hstep = Math.round(ch/10);
-const colstep = Math.round(ch/100);
+const colstep = Math.round(ch/150);
 
 var minW = [0, wstep, 2*wstep, 3*wstep, 4*wstep, 5*wstep, 6*wstep, 7*wstep, 8*wstep, 9*wstep, 10*wstep, 11*wstep, 12*wstep, 13*wstep, 14*wstep, 15*wstep];
 const range = (start, stop, step) => Array.from({ length: (stop - start) / step + 1}, (_, i) => start + (i * step));
 var w = range(0,cw, rowstep);
 var valueH = [ch,ch-hstep,ch-2*hstep, ch-3*hstep, ch-4*hstep, ch-5*hstep, ch-6*hstep, ch-7*hstep, ch-8*hstep, ch-9*hstep, ch-10*hstep];
 var h = range(ch, 0, -colstep);
-var mins = ['5','10','15','20','25','30','35','40','45','50','55', '60', '65', '70', '75', '80', '85', 'Min(m)'];
-var values = [10,20,30,40,50,60,70,80,90,'Items'];
+var mins = ['10','20','30','40','50','60','70', '80', '90','Min(m)'];
+var values = [15,30,45,60,75,90,105,120,135,'Items'];
 
 // make x axis for minutes
 for(var i = 0;i<mins.length;i++){
@@ -159,8 +159,8 @@ timeChart.canvas.height = "400";
 var tcw = timeChart.canvas.width;
 var tch = timeChart.canvas.height;
 
-const twstep = Math.round(tcw/12);
-const trowstep = Math.round(tcw/60);
+const twstep = Math.round(tcw/10);
+const trowstep = Math.round(tcw/100);
 const thstep = Math.round(tch/10);
 const tcolstep = Math.round(tch/20);
 const tcolstep2 = Math.round(tch/120);
@@ -174,7 +174,7 @@ var th2 = range(tch, 0, -tcolstep2);
 // console.log(th);
 
 // x axis // y axis
-var minutes = ['5','10','15','20','25','30','35','40','45','50','55', 'Min(m)'];
+var minutes = ['10','20','30','40','50','60','70', '80', '90','Min(m)'];
 var downs = [12, 24, 36, 48, 60, 72, 84, 96, 108, 'Sec(s)'];
 var times = [2, 4, 6, 8, 10, 12, 14, 16, 18, 'Min(m)'];
 
