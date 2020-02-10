@@ -82,17 +82,17 @@ orderChart.canvas.height = "400";
 var cw = orderChart.canvas.width;
 var ch = orderChart.canvas.height;
 
-const wstep = Math.round(cw/12);
+const wstep = Math.round(cw/15);
 const rowstep = Math.round(cw/60);
 const hstep = Math.round(ch/10);
 const colstep = Math.round(ch/100);
 
-var minW = [0, wstep, 2*wstep, 3*wstep, 4*wstep, 5*wstep, 6*wstep, 7*wstep, 8*wstep, 9*wstep, 10*wstep, 11*wstep, 12*wstep];
+var minW = [0, wstep, 2*wstep, 3*wstep, 4*wstep, 5*wstep, 6*wstep, 7*wstep, 8*wstep, 9*wstep, 10*wstep, 11*wstep, 12*wstep, 13*wstep, 14*wstep, 15*wstep];
 const range = (start, stop, step) => Array.from({ length: (stop - start) / step + 1}, (_, i) => start + (i * step));
 var w = range(0,cw, rowstep);
 var valueH = [ch,ch-hstep,ch-2*hstep, ch-3*hstep, ch-4*hstep, ch-5*hstep, ch-6*hstep, ch-7*hstep, ch-8*hstep, ch-9*hstep, ch-10*hstep];
 var h = range(ch, 0, -colstep);
-var mins = ['5','10','15','20','25','30','35','40','45','50','55', 'Min(m)'];
+var mins = ['5','10','15','20','25','30','35','40','45','50','55', '60', '65', '70', '75', '80', '85', 'Min(m)'];
 var values = [10,20,30,40,50,60,70,80,90,'Items'];
 
 // make x axis for minutes

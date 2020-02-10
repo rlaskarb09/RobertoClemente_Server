@@ -197,7 +197,7 @@ function getCustInfo(connection, name, callback) {
 }
 
 function rollbackItemsById(connection, idString, callback) {
-    var query = "UPDATE ?? SET ?? = 0000-00-00 00:00:00 WHERE id IN " + idString;
+    var query = "UPDATE ?? SET ?? = 0000-00-00 00:00:01 WHERE id IN " + idString;
     var params = ["ordered_items", "filldate"];
     query = mysql.format(query, params);
     console.log(query);
@@ -207,7 +207,7 @@ function rollbackItemsById(connection, idString, callback) {
 }
 
 function rollbackOrdersById(connection, idString, callback) {
-    var query = "UPDATE ?? SET ?? = 0000-00-00 00:00:00, ?? = ? WHERE id IN " + idString;
+    var query = "UPDATE ?? SET ?? = 0000-00-00 00:00:01, ?? = ? WHERE id IN " + idString;
     var params = ["orders", "filldate", "pending", 1];
     query = mysql.format(query, params);
     console.log(query);
