@@ -18,19 +18,19 @@ orderChart.canvas.height = "400";
 var cw = orderChart.canvas.width;
 var ch = orderChart.canvas.height;
 
-const wstep = Math.round(cw/12);
-const rowstep = Math.round(cw/60);
+const wstep = Math.round(cw/10);
+const rowstep = Math.round(cw/100);
 const hstep = Math.round(ch/10);
-const colstep = Math.round(ch/100);
+const colstep = (ch/150).toFixed(2);
 
-var minW = [0, wstep, 2*wstep, 3*wstep, 4*wstep, 5*wstep, 6*wstep, 7*wstep, 8*wstep, 9*wstep, 10*wstep, 11*wstep, 12*wstep];
+var minW = [0, wstep, 2*wstep, 3*wstep, 4*wstep, 5*wstep, 6*wstep, 7*wstep, 8*wstep, 9*wstep, 10*wstep];
 const range = (start, stop, step) => Array.from({ length: (stop - start) / step + 1}, (_, i) => start + (i * step));
 var w = range(0,cw, rowstep);
 var valueH = [ch,ch-hstep,ch-2*hstep, ch-3*hstep, ch-4*hstep, ch-5*hstep, ch-6*hstep, ch-7*hstep, ch-8*hstep, ch-9*hstep, ch-10*hstep];
 var h = range(ch, 0, -colstep);
 
-var mins = ['5','10','15','20','25','30','35','40','45','50','55', 'Min(m)'];
-var values = [10,20,30,40,50,60,70,80,90,'Items'];
+var mins = ['10','20','30','40','50','60','70', '80', '90','Min(m)'];
+var values = [15, 30, 45, 60, 75, 90,105,120,135,'Items'];
 
 // make x axis for minutes
 for(var i = 0;i<mins.length;i++){
@@ -81,16 +81,16 @@ timeChart.canvas.height = "400";
 var tcw = timeChart.canvas.width;
 var tch = timeChart.canvas.height;
 
-const twstep = Math.round(tcw/12);
+const twstep = Math.round(tcw/10);
 const thstep = Math.round(tch/10);
 
 var orderW = [0, twstep, 2*twstep, 3*twstep, 4*twstep, 5*twstep, 6*twstep, 7*twstep, 8*twstep, 9*twstep, 10*twstep, 11*twstep, 12*twstep];
 var timeH = [ch, ch-thstep, ch-2*thstep, ch-3*thstep, ch-4*thstep, ch-5*thstep, ch-6*thstep, ch-7*thstep, ch-8*thstep, ch-9*thstep, ch-10*thstep];
 
 // x axis // y axis
-var minutes = ['5','10','15','20','25','30','35','40','45','50','55', 'Min(m)'];
-var times = [2, 4, 6, 8, 10, 12, 14, 16, 18, 'Min(m)'];
-var downs = [12, 24, 36, 48, 60, 72, 84, 96, 108, 'Sec(s)'];
+var minutes = ['10','20','30','40','50','60','70', '80', '90','Min(m)'];
+var downs = [30, 60, 90, 120, 150, 180, 210, 240, 270, 'Sec(s)'];
+var times = [3, 6, 9, 12, 15, 18, 21, 24, 27, 'Min(m)'];
 
 for(var i = 0;i<minutes.length;i++){
     var minute = document.createElement('span');

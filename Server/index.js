@@ -92,8 +92,10 @@ let inventoryManagerTimer = setInterval(function() {
 }, UPDATE_INVENTORY_MANAGER_INTERVAL);
 
 let downTimeCheckTimer = setInterval(function() {
+    console.log('downTimeTimer works');
     if (status.robotMode == 'maintenance' && status.initialRobotConnection) {
-        status.downtime += 1;
+        status.downTime += 1;
+        console.log('downTime:', status.downTime)
     }
 }, DOWN_TIME_CHECK_INTERVAL);
 
