@@ -300,6 +300,33 @@ bottom: 20px;
     border-radius: 50%;
     margin-left: 10px;
 }
+
+/* another y axis for TimeChart */
+#downs{
+    position:absolute;
+    top:0;
+    right:2px;
+    margin-top: -2px;
+}
+#downs>span{
+    display:block;
+    color:#FF1800;
+    font-size:16px;
+    height:40px;
+    text-align: left;
+}
+#downs>span:before {
+    content: '';
+    /* right:10px; */
+    width: 4px;
+    height: 1px;
+    /* margin-right:10px; */
+    position: absolute;
+    background-color: #FF1800;
+    border-radius: 50%;
+    /* margin-left: 10px; */
+}
+
 /*--------------------------For font--------------------------*/
 @font-face {
     font-family: 'pacificoregular';

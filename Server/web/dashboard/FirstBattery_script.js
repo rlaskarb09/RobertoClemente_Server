@@ -94,18 +94,19 @@ var valueH = [ch,ch-hstep,ch-2*hstep, ch-3*hstep, ch-4*hstep, ch-5*hstep, ch-6*h
 var h = range(ch, 0, -colstep);
 var mins = ['5','10','15','20','25','30','35','40','45','50','55', 'Min(m)'];
 var values = [10,20,30,40,50,60,70,80,90,'Items'];
+var downs = [12, 24, 36, 48, 60, 72, 84, 96, 108, "Sec(s)"];
 
 // make x axis for minutes
 for(var i = 0;i<mins.length;i++){
     var min = document.createElement('span');
-    var text = document.createTextNode(mins[i])
+    var text = document.createTextNode(mins[i]);
     min.appendChild(text);
     document.getElementById('mins').appendChild(min);
 }
 // make y axis for pendingOrders and deliveredOrders
 for(var i = values.length-1;i>=0;i--){
     var value = document.createElement('span');
-    var text_value = document.createTextNode(values[i])
+    var text_value = document.createTextNode(values[i]);
     value.appendChild(text_value);
     document.getElementById('pendingValues').appendChild(value);
 }
@@ -166,7 +167,7 @@ var tw = range(0, tcw, trowstep);
 
 var timeH = [ch, ch-thstep, ch-2*thstep, ch-3*thstep, ch-4*thstep, ch-5*thstep, ch-6*thstep, ch-7*thstep, ch-8*thstep, ch-9*thstep, ch-10*thstep];
 var th = range(tch, 0, -tcolstep);
-console.log(th);
+// console.log(th);
 
 // x axis // y axis
 var minutes = ['5','10','15','20','25','30','35','40','45','50','55', 'Min(m)'];
@@ -186,6 +187,14 @@ for(var i = times.length-1;i>=0;i--){
     time.appendChild(text_time);
     document.getElementById('times').appendChild(time);
 }
+
+for(var i=downs.length-1;i>=0;i--){
+    var down = document.createElement('span');
+    var text_down = document.createTextNode(downs[i]);
+    down.appendChild(text_down);
+    document.getElementById('downs').appendChild(down);
+}
+
 
 function gridVT(){
     for(var i=1;i<orderW.length-1;i++){
@@ -220,7 +229,7 @@ for(var i =0;i<w.length-1;i++){
     orderChart.lineTo(w[i], h[pendingOrderList[i]]);
     orderChart.stroke();
 }
-// draw slope of pending orders
+// draw complete orders
 orderChart.beginPath();
 for(var i =0;i<w.length-1;i++){
     orderChart.moveTo(0, ch);
