@@ -53,14 +53,15 @@ $(document).ready(function (){
 // get pending list
 var getList = document.getElementById('pendingList').innerText;
 var pendingOrderList = getList.split(',');
-
-$(document).ready(function(){
-    var backloglist = parseInt(pendingOrderList);
-    setInterval(function(){
-        var highBacklog = Math.max(backloglist);
-        $('#highBacklog').text('Highest Backlog : ' + highBacklog);
-    },1);
-});
+var highBacklog = 0
+for (var i=0; i<pendingOrderList.length;i++){
+    if (highBacklog < pendingOrderList[i]){
+        highBacklog = pendingOrderList[i];
+    }else{
+        highBacklog = highBacklog;
+    }
+};
+$('#highBacklog').text('Highest Backlog : ' + highBacklog);
 
 // get delivered list
 var getList = document.getElementById('deliveredList').innerText;
@@ -134,10 +135,17 @@ gridH();
 var getList = document.getElementById('avgDeliverytimeList').innerText;
 var avgDeliveryTList = getList.split(',');
 console.log(avgDeliveryTList);
+avgDeliveryTList = avgDeliveryTList.map(function(each_element){
+    return Number(Math.round(each_element/60));
+});
+console.log(avgDeliveryTList);
 
 var getList = document.getElementById('downtimeList').innerText;
 var downtimeList = getList.split(',');
 console.log(downtimeList);
+downtimeList = downtimeList.map(function(each_element){
+    return Number(Math.round(each_element));
+})
 
 var timeChart = document.getElementById('timeChart').getContext("2d");
 
@@ -150,16 +158,19 @@ var tch = timeChart.canvas.height;
 const twstep = Math.round(tcw/12);
 const trowstep = Math.round(tcw/60);
 const thstep = Math.round(tch/10);
-const tcolstep = Math.round(tch/100);
+const tcolstep = Math.round(tch/20);
+const tcolstep2 = Math.round(tch/120);
 
 var orderW = [0, twstep, 2*twstep, 3*twstep, 4*twstep, 5*twstep, 6*twstep, 7*twstep, 8*twstep, 9*twstep, 10*twstep, 11*twstep, 12*twstep];
 var tw = range(0, tcw, trowstep);
 
 var timeH = [ch, ch-thstep, ch-2*thstep, ch-3*thstep, ch-4*thstep, ch-5*thstep, ch-6*thstep, ch-7*thstep, ch-8*thstep, ch-9*thstep, ch-10*thstep];
 var th = range(tch, 0, -tcolstep);
+var th2 = range(tch, 0, -tcolstep2);
 
 var minutes = ['5','10','15','20','25','30','35','40','45','50','55', 'Min(m)'];
-var times = [2, 4, 6, 8, 10, 12, 14, 16, 18, 'Sec(s)'];
+var times = [2, 4, 6, 8, 10, 12, 14, 16, 18, 'Min(m)'];
+var downs = [12, 24, 36, 48, 60, 72, 84, 96, 108, 'Sec(s)'];
 
 for(var i = 0;i<minutes.length;i++){
     var minute = document.createElement('span');
@@ -173,6 +184,13 @@ for(var i = times.length-1;i>=0;i--){
     var text_time = document.createTextNode(times[i])
     time.appendChild(text_time);
     document.getElementById('times').appendChild(time);
+}
+
+for(var i=downs.length-1;i>=0;i--){
+    var down = document.createElement('span');
+    var text_down = document.createTextNode(downs[i]);
+    down.appendChild(text_down);
+    document.getElementById('downs').appendChild(down);
 }
 
 function gridVT(){
@@ -190,33 +208,14 @@ function gridHT(){
         timeChart.strokeStyle = "rgb(221, 222, 221)";
         timeChart.lineWidth = 1;
         timeChart.moveTo(0, timeH[i]);
-        timeChart.lineTo(4000, timeH[i]);
+        timeChart.lineTo(3000, timeH[i]);
     }
     timeChart.stroke();
 }
 gridHT();
 gridVT();
 
-// <-------------------Draw Graph------------------->
-var timech = document.getElementById("timeChart");
-timeChart.beginPath();
-for(var i =0;i<orderW.length;i++){
-    timeChart.moveTo(0, timech);
-    timeChart.strokeStyle = '#004429';
-    timeChart.lineWidth = 3;
-    timeChart.lineTo(tw[i], th[avgDeliveryTList[i]]);
-    timeChart.stroke();
-}
-
-timeChart.beginPath();
-for(var i =0;i<orderW.length;i++){
-    timeChart.moveTo(0, timech);
-    timeChart.strokeStyle = '#FF1800';
-    timeChart.lineWidth = 3;
-    timeChart.lineTo(tw[i], th[downtimeList[i]]);
-    timeChart.stroke();
-}
-
+// <-------------------Draw Graph for Order Chart------------------->
 var ch = document.getElementById("orderChart");
 // draw pending orders
 orderChart.beginPath();    
@@ -227,7 +226,7 @@ for(var i =0;i<w.length-1;i++){
     orderChart.lineTo(w[i], h[pendingOrderList[i]]);
     orderChart.stroke();
 }
-// draw slope of pending orders
+// draw complete orders
 orderChart.beginPath();
 for(var i =0;i<w.length-1;i++){
     orderChart.moveTo(0, ch);
@@ -235,4 +234,24 @@ for(var i =0;i<w.length-1;i++){
     orderChart.lineWidth = 3;
     orderChart.lineTo(w[i], h[deliveredList[i]]);
     orderChart.stroke();
+}
+
+// <-------------------Draw Graph for Time Chart------------------->
+var timech = document.getElementById("timeChart");
+timeChart.beginPath();
+for(var i =0;i<w.length;i++){
+    timeChart.moveTo(0, timech);
+    timeChart.strokeStyle = '#004429';
+    timeChart.lineWidth = 3;
+    timeChart.lineTo(w[i], th[avgDeliveryTList[i]]);
+    timeChart.stroke();
+}
+
+timeChart.beginPath();
+for(var i =0;i<w.length;i++){
+    timeChart.moveTo(0, timech);
+    timeChart.strokeStyle = '#FF1800';
+    timeChart.lineWidth = 3;
+    timeChart.lineTo(w[i], th2[downtimeList[i]]);
+    timeChart.stroke();
 }

@@ -89,7 +89,8 @@ var timeH = [ch, ch-thstep, ch-2*thstep, ch-3*thstep, ch-4*thstep, ch-5*thstep, 
 
 // x axis // y axis
 var minutes = ['5','10','15','20','25','30','35','40','45','50','55', 'Min(m)'];
-var times = [2, 4, 6, 8, 10, 12, 14, 16, 18, 'Sec(s)'];
+var times = [2, 4, 6, 8, 10, 12, 14, 16, 18, 'Min(m)'];
+var downs = [12, 24, 36, 48, 60, 72, 84, 96, 108, 'Sec(s)'];
 
 for(var i = 0;i<minutes.length;i++){
     var minute = document.createElement('span');
@@ -103,6 +104,13 @@ for(var i = times.length-1;i>=0;i--){
     var text_time = document.createTextNode(times[i])
     time.appendChild(text_time);
     document.getElementById('times').appendChild(time);
+}
+
+for(var i=downs.length-1;i>=0;i--){
+    var down = document.createElement('span');
+    var text_down = document.createTextNode(downs[i]);
+    down.appendChild(text_down);
+    document.getElementById('downs').appendChild(down);
 }
 
 function gridVT(){

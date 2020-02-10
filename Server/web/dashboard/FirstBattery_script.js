@@ -94,7 +94,6 @@ var valueH = [ch,ch-hstep,ch-2*hstep, ch-3*hstep, ch-4*hstep, ch-5*hstep, ch-6*h
 var h = range(ch, 0, -colstep);
 var mins = ['5','10','15','20','25','30','35','40','45','50','55', 'Min(m)'];
 var values = [10,20,30,40,50,60,70,80,90,'Items'];
-var downs = [12, 24, 36, 48, 60, 72, 84, 96, 108, "Sec(s)"];
 
 // make x axis for minutes
 for(var i = 0;i<mins.length;i++){
@@ -148,6 +147,9 @@ console.log(avgDeliveryTList);
 var getList = document.getElementById('downtimeList').innerText;
 var downtimeList = getList.split(',');
 console.log(downtimeList);
+downtimeList = downtimeList.map(function(each_element){
+    return Number(Math.round(each_element));
+})
 
 var timeChart = document.getElementById('timeChart').getContext("2d");
 
@@ -161,17 +163,19 @@ const twstep = Math.round(tcw/12);
 const trowstep = Math.round(tcw/60);
 const thstep = Math.round(tch/10);
 const tcolstep = Math.round(tch/20);
+const tcolstep2 = Math.round(tch/120);
 
 var orderW = [0, twstep, 2*twstep, 3*twstep, 4*twstep, 5*twstep, 6*twstep, 7*twstep, 8*twstep, 9*twstep, 10*twstep, 11*twstep, 12*twstep];
 var tw = range(0, tcw, trowstep);
 
 var timeH = [ch, ch-thstep, ch-2*thstep, ch-3*thstep, ch-4*thstep, ch-5*thstep, ch-6*thstep, ch-7*thstep, ch-8*thstep, ch-9*thstep, ch-10*thstep];
 var th = range(tch, 0, -tcolstep);
+var th2 = range(tch, 0, -tcolstep2);
 // console.log(th);
 
 // x axis // y axis
 var minutes = ['5','10','15','20','25','30','35','40','45','50','55', 'Min(m)'];
-// var times = [12, 24, 36, 48, 60, 72, 84, 96, 108, 'Sec(s)'];
+var downs = [12, 24, 36, 48, 60, 72, 84, 96, 108, 'Sec(s)'];
 var times = [2, 4, 6, 8, 10, 12, 14, 16, 18, 'Min(m)'];
 
 for(var i = 0;i<minutes.length;i++){
@@ -194,7 +198,6 @@ for(var i=downs.length-1;i>=0;i--){
     down.appendChild(text_down);
     document.getElementById('downs').appendChild(down);
 }
-
 
 function gridVT(){
     for(var i=1;i<orderW.length-1;i++){
@@ -242,20 +245,19 @@ for(var i =0;i<w.length-1;i++){
 // <-------------------Draw Graph for Time Chart------------------->
 var timech = document.getElementById("timeChart");
 timeChart.beginPath();
-for(var i =0;i<orderW.length;i++){
+for(var i =0;i<w.length;i++){
     timeChart.moveTo(0, timech);
     timeChart.strokeStyle = '#004429';
     timeChart.lineWidth = 3;
-    timeChart.lineTo(tw[i], th[avgDeliveryTList[i]]);
+    timeChart.lineTo(w[i], th[avgDeliveryTList[i]]);
     timeChart.stroke();
 }
 
 timeChart.beginPath();
-for(var i =0;i<orderW.length;i++){
+for(var i =0;i<w.length;i++){
     timeChart.moveTo(0, timech);
     timeChart.strokeStyle = '#FF1800';
     timeChart.lineWidth = 3;
-    timeChart.lineTo(tw[i], th[downtimeList[i]]);
+    timeChart.lineTo(w[i], th2[downtimeList[i]]);
     timeChart.stroke();
 }
-
