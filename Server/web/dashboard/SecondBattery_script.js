@@ -172,7 +172,7 @@ var timeH = [ch, ch-thstep, ch-2*thstep, ch-3*thstep, ch-4*thstep, ch-5*thstep, 
 var th = range(tch, 0, -tcolstep);
 var th2 = range(tch, 0, -tcolstep2);
 
-var minutes = ['10','20','30','40','50','60','70', '80', '90','Min(m)'];
+var minutes = ['10','20','30','40','50','60','70', '80', '90', 'Min(m)'];
 var downs = [30, 60, 90, 120, 150, 180, 210, 240, 270, 'Sec(s)'];
 var times = [3, 6, 9, 12, 15, 18, 21, 24, 27, 'Min(m)'];
 
