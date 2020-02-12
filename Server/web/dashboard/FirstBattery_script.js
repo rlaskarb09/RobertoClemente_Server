@@ -43,15 +43,20 @@ var getList = document.getElementById('pendingList').innerText;
 var pendingOrderList = getList.split(',').map(Number);
 console.log(pendingOrderList);
 
+var nowbacklog = document.getElementById('backlog').innerText;
 var highBacklog = 0
 for (var i=0; i<pendingOrderList.length;i++){
     if (highBacklog < pendingOrderList[i]){
         highBacklog = pendingOrderList[i];
+        if(highBacklog<nowbacklog){
+            highBacklog = nowbacklog;
+        }
     }else{
         highBacklog = highBacklog;
     }
 };
 $('#highBacklog').text('Highest Backlog : ' + highBacklog);
+console.log(highBacklog);
 
 // $(document).ready(function(){
 //     var backloglist = pendingOrderList;
