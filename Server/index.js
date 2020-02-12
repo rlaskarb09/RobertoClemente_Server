@@ -16,7 +16,7 @@ let ejs = require('ejs');
 var connection = mysql.createConnection({
     host: 'localhost',
     user: 'root',
-    password: '',
+    password: 'ehfpalvkthf',
     database: 'orderdb',
     debug: false
 });
@@ -133,6 +133,24 @@ function getMessageToDashboard(status) {
         downTimeList: status.downTimeList,
         avgDeliveryTimeList: status.avgDeliveryTimeList
     };
+}
+
+function initSchedule(status) {
+    status.deliverySchedule = [];
+    status.deliveryItemIds = [];
+    status.deliveryItems = [];
+    status.robotPath = [];
+    status.nextLoading = [];
+    status.nextDeliverySchedule = [];
+    status.nextDeliveryItemIds = [];
+    status.nextDeliveryItems = [];
+    status.nextRobotPath = [];
+    status.nextNextLoading = [];
+    status.nextNextDeliverySchedule = [];
+    status.nextNextDeliveryItemIds = [];
+    status.nextNextDeliveryItems = [];
+    status.nextNextRobotPath = [];
+    status.isAlreadyScheduled = false;
 }
 
 function getRobotBatteryTime(status) {
@@ -496,7 +514,7 @@ app.ws('/robot', function(ws, req) {
                         console.log('Scheduled, running time:', scheduleEnd - scheduleStart);
                     });
                 }
-                else if (status.pendingItems >= 40 && !status.isAlreadyScheduled) {
+                else if (status.pendingItems >= 30 && !status.isAlreadyScheduled) {
                         var scheduleStart = performance.now();
                         getSchedule(function() {
                             var scheduleEnd = performance.now();
@@ -620,8 +638,8 @@ app.ws('/robot', function(ws, req) {
     ws.on('close', function(msg) {
         // console.log('robot websocket closed');
         status.robotMode = 'maintenance';
-        status.robotMaintenanceStartTime = performance.now();
         status.robotConnected = false;
+        initSchedule(status);
     });
 });
 
