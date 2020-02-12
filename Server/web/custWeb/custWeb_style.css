@@ -209,7 +209,7 @@ input.button:hover{
     border: 1px solid rgb(0,70,42); 
     color: rgb(0,70,42); 
     padding: 5px;
-    font-size:36px;
+    font-size:20px;
     
     margin-left:20px;
     margin-top:10px;
@@ -221,6 +221,14 @@ input.button:hover{
 #loginId{
     font-size: 36px;
     margin-left:50px;
+}
+#loginId_input{
+    border: transparent;
+    background-color: rgb(225, 226, 225);
+    padding: 8px 20px 8px;
+    font-size: 20px;
+    margin-left: 30px;
+    margin-bottom: 5px;
 }
 img.fixed{
 	position:scroll;
@@ -284,6 +292,48 @@ img.fixed{
 #name, #ID, #orderDate, #orderItems, #orderItem_red, #orderItem_green, #orderItem_blue, #custAddress, #orderProcess{
     font-size:20px;
     text-align: left;
+}
+.overlay{
+    position: fixed;
+    top:0;
+    bottom: 0;
+    left:0;
+    right:0;
+    background: rgba(0, 0, 0, 0.7);
+    transition: opacity 500ms;
+    visibility: hidden;
+    opacity:0;
+}
+.overlay:target{
+    visibility: visible;
+    opacity: 1;
+}
+.popup{
+    margin: 70px auto;
+    padding:20px;
+    background: #fff;
+    border-radius: 5px;
+    width: 30%;
+    position: relative;
+    transition: all 5s ease-in-out;
+}
+.popup .close{
+    position: absolute;
+    top: 20px;
+    right: 30px;
+    transform: all 200ms;
+    font-size: 30px;
+    font-weight: bold;
+    text-decoration: none;
+    color:#333;
+}
+.popup .close:hover{
+    color:rgb(0, 70, 42);
+}
+@media screen and (max-width:700px){
+    .popup{
+        width: 70%;
+    }
 }
 /*--------------------------For item page--------------------------*/
 .item_container{

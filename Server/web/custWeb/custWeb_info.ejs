@@ -47,8 +47,10 @@
                             <p id="orderItems">R : <span id="orderItem_red" style="color:red"><%=rows[0].red%></span> G : <span id="orderItem_green" style="color:green"><%=rows[0].green%></span>  B : <span id="orderItem_blue" style="color:blue"><%=rows[0].blue%></span></p>
                             <p id="custAddress"><%=rows[0].address%></span></p>
                             <p id="orderProcess"></p>
-                            <input type="button" name="btn1" value="Cancel Item" class="button">
+                            <input type="button" name="btn1" value="Cancel Item" class="button" onclick="cancelFunc()">
+                            
                         </div>
+
                         <!-- info class end -->
                     </div>
                 <!-- content class end -->
@@ -83,7 +85,9 @@
             var orderDate = '';
             orderDate = orderDate.concat(getDate[1], ', ', getDate[2], ', ', getDate[3]);
             $('#orderDate').text(orderDate);
-
+            function cancelFunc(){
+                alert("Your Order is Canceled!!")
+            }
         </script>
 	</body>
 </html>

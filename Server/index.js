@@ -16,7 +16,7 @@ let ejs = require('ejs');
 var connection = mysql.createConnection({
     host: 'localhost',
     user: 'root',
-    password: '',
+    password: 'Dltndk97!',
     database: 'orderdb',
     debug: false
 });
@@ -136,17 +136,17 @@ function getMessageToDashboard(status) {
 }
 
 function initSchedule(status) {
-    status.deliverySchedule = [];
+    status.deliverySchedule = getInitDeliverySchedule();
     status.deliveryItemIds = [];
     status.deliveryItems = [];
     status.robotPath = [];
-    status.nextLoading = [];
-    status.nextDeliverySchedule = [];
+    status.nextLoading = [0, 0, 0];
+    status.nextDeliverySchedule = getInitDeliverySchedule();
     status.nextDeliveryItemIds = [];
     status.nextDeliveryItems = [];
     status.nextRobotPath = [];
-    status.nextNextLoading = [];
-    status.nextNextDeliverySchedule = [];
+    status.nextNextLoading = [0, 0, 0];
+    status.nextNextDeliverySchedule = getInitDeliverySchedule();
     status.nextNextDeliveryItemIds = [];
     status.nextNextDeliveryItems = [];
     status.nextNextRobotPath = [];
