@@ -703,12 +703,15 @@ app.get('/secondB', function(req, res){
 });
 
 app.get('/custWeb', function(req, res){
-    res.render('./custWeb/custWeb_basic', {loginLink: '/login', custLink: '/custInfo'});
+    res.render('./custWeb/custWeb_basic', {basicLink: '/custWeb', itemLink: '/item', loginLink: '/login', custLink: '/custInfo'});
+});
+
+app.get('/item', function(req, res){
+    res.render('./custWeb/custWeb_item', {basicLink: '/custWeb', itemLink: '/item', loginLink: '/login', custLink: '/custInfo'});
 });
 
 app.get('/login',function(req,res){
-    res.render('./custWeb/custWeb_login', {loginLink: '/login',
-                                custLink: '/custInfo'});
+    res.render('./custWeb/custWeb_login', {basicLink: '/custWeb', itemLink: '/item', loginLink: '/login', custLink: '/custInfo'});
 });
 
 app.post('/custInfo', (req,res)=>{
@@ -716,6 +719,8 @@ app.post('/custInfo', (req,res)=>{
     sqlMethods.getCustInfo(connection, id, function(err, rows) {
         console.log('rows:', rows, err);
         var info_dict = {'rows':rows};
+        info_dict["basicLink"] = '/custWeb';
+        info_dict["itemLink"] = '/item';
         info_dict["loginLink"] = '/login';
         info_dict["custLink"] = '/custInfo';
         res.render('./custWeb/custWeb_info', info_dict);
@@ -723,8 +728,7 @@ app.post('/custInfo', (req,res)=>{
 });
 
 app.get('/custInfo',function(req,res){
-    res.render('./custWeb/custWeb_info', {loginLink: "/login",
-                                custLink: "/custInfo"});
+    res.render('./custWeb/custWeb_info', {basicLink: '/custWeb', itemLink: '/item', loginLink: "/login", custLink: "/custInfo"});
 });
 
 app.get('/api/pending', function (req, res) {

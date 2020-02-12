@@ -16,17 +16,24 @@ h2{
 p{
     font-family: Noco_sans;
     font-size: 36px;
+    text-align: center;
 }
 body{
+    background-color: rgb(245, 245, 246);
     margin:-5px 0px 0px;
     border:0px;
     padding:0px;
 }
+/*--------------------------For title-------------------------*/
+.title a{
+    text-decoration: none;
+    color: white;
+}
+/*--------------------------For Side Nav-------------------------*/
 @media screen and (max-height:450px){
     .sidenav {padding-top: 15px;}
     .sidenav a {font-size: 18px;}
 }
-/*--------------------------For Side Nav-------------------------*/
 .sidenav {
     height: 100%;
     width: 0;
@@ -72,6 +79,7 @@ body{
 
 .slideshow{
     /* max-width: 1000px; */
+    max-width: 2000px;
     position:relative;
     margin: auto;
 }
@@ -85,7 +93,7 @@ body{
     width: auto;
     margin-top: -22px;
     padding: 16px;
-    color: white;
+    color: #001f00;
     font-weight: bold;
     font-size: 18px;
     transition: 0.6s ease;
@@ -175,11 +183,6 @@ body{
 .btn_search:hover{
     background-color: #d59096; 
 }
-img.fixed{
-	position:scroll;
-	float: left;
-/*    padding: 10px;*/
-}
 input.button{
     border-top-left-radius: 5px; 
     border-bottom-left-radius: 5px;
@@ -188,10 +191,10 @@ input.button{
     border: 1px solid rgb(0,70,42); 
     color: rgb(0,70,42); 
     padding: 5px;
-    font-size: 18px;
-    
+    font-size: 15px;
+    float: right;
 /*    position: scroll;*/
-    margin-left:50px;
+    margin-right:50px;
     
 }
 input.button:hover{
@@ -219,6 +222,12 @@ input.button:hover{
     font-size: 36px;
     margin-left:50px;
 }
+img.fixed{
+	position:scroll;
+	float: left;
+    margin: 100px 150px 0px;
+    /* border: 2px dashed rgb(225, 226, 225); */
+}
 /*--------------------------For div Class--------------------------*/
 .frame{
     width: 100%;
@@ -244,45 +253,123 @@ input.button:hover{
     width:100%;
     height:80%;
 }
-.nav{
-    float: left;
-    width: 15%;
-    background: #d59096;
-    margin-right:50px;
-    font-size:20px;
-}
-.nav-list{
-    list-style: none;
-    margin: 0;
-    padding: 10px 0;
-}
-.nav-menu{
-    margin: 4px 0;
-}
-.nav-link{
-    display: block;
-    text-decoration: none;
-    padding: 4px 10px;
-    color:white;
-}
-.nav-link:hover{
-    background:#ffc1c8;
-}
 .content{
-/*    float:left;*/
-    width:80%;
-    
+    width:100%;
+}
+.info_content{
+    width: 80%;
+    height: 60%;
+    border: 2px dashed rgb(225, 226, 225);
+    margin: 0px 100px 0px;
+    padding: 0px 50px 0px;
 }
 .login{
     text-align: center;
     font-size: 20px;
 }
-.info{
+.t_info{
     float:left;
-    width:50%;
-    margin-left: 50px;
-    text-indent: 20px;
+    width:25%;
+    /* margin-right: 100px; */
+    text-indent: 10px;
 }
+.info{
+    float:right;
+    width:30%;
+}
+#t_name, #t_ID, #t_orderDate, #t_orderItems, #t_custAddress, #t_orderProcess{
+    font-size: 20px;
+    text-align: left;
+}
+#name, #ID, #orderDate, #orderItems, #orderItem_red, #orderItem_green, #orderItem_blue, #custAddress, #orderProcess{
+    font-size:20px;
+    text-align: left;
+}
+/*--------------------------For item page--------------------------*/
+.item_container{
+    width:100%;
+    height:80%;
+    border: 0px 30px 0px;
+}
+.block{
+    float:left;
+    width:25%;
+    height:auto;
+    margin: 0px 20px 10px ;
+}
+.order{
+    float:right;
+    width: 10%;
+    height: 500px;
+    margin: 0px 30px 10px;
+    background-color: rgb(225, 226, 225); 
+    border-radius: 20px;
+}
+#block_img{
+    width: 100%;
+    height: 80%;
+}
+#red{
+    padding: 10px 10px 0px;
+    border: 2px dashed #357052;
+}
+#green{
+    padding: 10px 10px 0px;
+    border: 2px dashed #357052;
+}
+#blue{
+    padding: 10px 10px 0px;
+    border: 2px dashed #357052;
+}
+#block_info{
+    font-size: 20px;
+    color: darkslategray;
+}
+#order_box{
+    margin: 0px 0px 20px;
+    padding: 10px 0px 0px;
+    border-radius:20px 20px 0px 0px;
+    background-color:#357052;
+    border-bottom: 3px solid #ffc1c7;
+    color: white;
+    font-size: 26px;
+}
+.order_name, .addr_name{
+    float:left;
+    font-size:20px;
+    padding: 0px 10px 0px;
+    margin: 0px 10px 0px;
+    color: #001f00;
+}
+.select{
+    float:right;
+    padding: 3px 5px 0;
+}
+.red_order, .green_order, .blue_order, .addr{
+    width: 90%;
+    height: 15%;
+    display:block;
+    float: top;
+    margin: 10px 10px 10px;
+    /* margin-top: 100px; */
+    padding: 10px 0px 10px;
+    background-color: rgb(245, 245, 246);
+    border: 2px dashed #357052;
+}
+#btn_order{
+    /* float: right; */
+    margin: 0px 20px 0px;
+    font-size: 20px;
+    float: right;
+    border: 2px solid rgb(0,70,42);
+    border-radius: 5px 5px 5px 5px;
+}
+#btn_order:hover{
+    color: white;
+    background-color: rgb(0, 70, 42);
+    border-color: #357052;
+}
+/*--------------------------For footer class--------------------------*/
 .footer{
     width: 100%;
     height: 10%;

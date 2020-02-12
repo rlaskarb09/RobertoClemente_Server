@@ -1,0 +1,148 @@
+<!DOCTYPE html>
+<html>
+	<head>
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <title>Items</title>
+		<link href="../custWeb/custWeb_style.css" type="text/css" rel="stylesheet" />
+        <link rel="shortcut icon" href="../part/style/favicon.ico">
+        <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
+        <script type="text/javascript" src="http://code.jquery.com/jquery-1.10.1.min.js"></script>
+	</head>
+	<body>
+        <div id="mySidenav" class="sidenav">
+            <a href ="javascript:void(0)" class="closebtn" onclick="closeNav()">&times;</a>
+            <br/>
+            <br/>
+            <a href="<%= itemLink%>">Items</a>
+            <a href="<%= loginLink%>">Login</a>
+            <a href="<%= custLink%>">My Order</a>
+        </div>
+        
+        <div class="frame">
+            <div class="title">
+                <span class="menubar" id="menubar" style="font-size:30px; cursor:pointer; color: white" onclick="openNav()">&#9776;</span>
+                <h1 class="page_name"><a href="<%= basicLink%>">Roberto Clemente</a></h1>
+                <button class="btn_search" id="search"><i class="fa fa-search"></i></button><input id = "search" class="search" placeholder="Search...">
+            </div>
+            <div class="item_container">
+                <h2>Items</h2>
+                <div class="block" id="red">
+                    <img id="block_img" src="../part/style/red_blocks.jpg">
+                    <p id="block_info">Blocks covered by red paints</p>
+                </div>
+                <div class="block" id="green">
+                    <img id="block_img" src="../part/style/green_blocks.jpg">
+                    <p id="block_info">Blocks covered by green paints</p>
+                </div>
+                <div class="block" id="blue">
+                    <img id="block_img" src="../part/style/blue_blocks.jpg">
+                    <p id="block_info">Blocks covered by blue paints</p>
+                </div>
+                <div class="order">
+                    <p id="order_box">ORDER</p>
+                    <div class="red_order">
+                        <p class="order_name">Red</p>
+                        <div class="select">
+                            <div class="num_select" style="width:100px">
+                                <select>
+                                    <option value="0">Qty: 0</option>
+                                    <option value="1">1</option>
+                                    <option value="2">2</option>
+                                    <option value="3">3</option>
+                                    <option value="4">4</option>
+                                    <option value="5">5</option>
+                                    <option value="6">6</option>
+                                    <option value="7">7</option>
+                                    <option value="8">8</option>
+                                    <option value="9">9</option>
+                                    <option value="10">10</option>
+                                    <option value="11">11</option>
+                                    <option value="12">12</option>
+                                    <option value="13">13</option>
+                                    <option value="14">14</option>
+                                    <option value="15">15</option>
+                                </select>
+                            </div>
+                        </div>
+                    </div>
+                    <!-- red_order class end -->
+                    <div class="green_order">
+                        <p class="order_name">Green</p>
+                        <div class="select">
+                            <div class="num_select" style="width:100px">
+                                <select>
+                                    <option value="0">Qty: 0</option>
+                                    <option value="1">1</option>
+                                    <option value="2">2</option>
+                                    <option value="3">3</option>
+                                    <option value="4">4</option>
+                                    <option value="5">5</option>
+                                    <option value="6">6</option>
+                                    <option value="7">7</option>
+                                    <option value="8">8</option>
+                                    <option value="9">9</option>
+                                    <option value="10">10</option>
+                                    <option value="11">11</option>
+                                    <option value="12">12</option>
+                                    <option value="13">13</option>
+                                    <option value="14">14</option>
+                                    <option value="15">15</option>
+                                </select>
+                            </div>
+                        </div>
+                    </div>
+                    <!-- green_order class end -->
+                    <div class="blue_order">
+                        <p class="order_name">Blue</p>
+                        <div class="select">
+                            <div class="num_select" style="width:100px">
+                                <select>
+                                    <option value="0">Qty: 0</option>
+                                    <option value="1">1</option>
+                                    <option value="2">2</option>
+                                    <option value="3">3</option>
+                                    <option value="4">4</option>
+                                    <option value="5">5</option>
+                                    <option value="6">6</option>
+                                    <option value="7">7</option>
+                                    <option value="8">8</option>
+                                    <option value="9">9</option>
+                                    <option value="10">10</option>
+                                    <option value="11">11</option>
+                                    <option value="12">12</option>
+                                    <option value="13">13</option>
+                                    <option value="14">14</option>
+                                    <option value="15">15</option>
+                                </select>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="addr">
+                        <p class="addr_name">Address</p>
+                        <div class="select">
+                            <div class="addr_select" style="width:100px">
+                                <select>
+                                    <option value="0">Address</option>
+                                    <option value="101">101</option>
+                                    <option value="102">102</option>
+                                    <option value="103">103</option>
+                                    <option value="201">201</option>
+                                    <option value="202">202</option>
+                                    <option value="203">203</option>
+                                </select>
+                            </div>
+                        </div>
+                    </div>
+                    <button id="btn_order">Order</button>
+                    
+                </div>
+            </div>
+            <div class="footer">
+                <p class="copyright">&copy;Roberto Clemente</p>
+            </div>
+        </div>
+        <script type="text/javascript" src="../custWeb/custWeb_script.js">
+        </script>
+    </body>
+    
+</html>
