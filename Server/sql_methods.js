@@ -1,6 +1,16 @@
 const { PerformanceObserver, performance } = require('perf_hooks');
 var mysql = require('mysql');
 
+function sqlModeInit(connection, callback) {
+    var query = "SELECT sql_mode = ''";
+    var params = [];
+    query = mysql.format(query,params);
+    console.log(query);
+    connection.query(query, function(err,rows){
+        callback(err, rows);
+    });
+}
+
 function getAllRows(connection, tableName, callback) {
     var query = "SELECT * FROM ??";
     var params = [tableName];
@@ -216,6 +226,7 @@ function rollbackOrdersById(connection, idString, callback) {
     });
 }
 
+module.exports.sqlModeInit = sqlModeInit;
 module.exports.getAllRows = getAllRows;
 module.exports.addOrder = addOrder;
 module.exports.addOrderedItems = addOrderedItems;

@@ -16,7 +16,7 @@ let ejs = require('ejs');
 var connection = mysql.createConnection({
     host: 'localhost',
     user: 'root',
-    password: 'Dltndk97!',
+    password: '',
     database: 'orderdb',
     debug: false
 });
@@ -631,28 +631,30 @@ app.listen(SERVER_PORT, function() {
     status.robotMode = 'stop';
     console.log('at listen, mode: ', status.robotMode);
 
-    sqlMethods.getPendingOrders(connection, function(err, rows) {
-        status.pendingOrders = Number(rows[0]['COUNT(*)']);
-        sqlMethods.getDeliveredOrders(connection, function(err, rows) {
-            status.deliveredOrders = Number(rows[0]['COUNT(*)']);
-            status.deliveredOrderList = [status.deliveredOrders];
-            sqlMethods.getPendingItems(connection, function(err, rows) {
-                status.pendingItems = Number(rows[0]['COUNT(*)']);
-                status.pendingOrderList = [status.pendingOrders];
-                sqlMethods.getAvgDeliveryTime(connection, function(err, rows) {
-                    status.avgDeliveryTime = Number(rows[0]['AVG(TIMESTAMPDIFF(SECOND,`orderdate`,`filldate`))']);
-                    status.avgDeliveryTimeList = [status.avgDeliveryTime];
-                    updateListTimer = setInterval(function() {
-                        status.pendingOrderList.push(status.pendingOrders);
-                        status.avgDeliveryTimeList.push(status.avgDeliveryTime);
-                        status.deliveredOrderList.push(status.deliveredOrders);
-                        status.downTimeList.push(status.downTime);
-                        console.log(performance.now(), "");
-                        console.log('pendingOrderList:', status.pendingOrderList);
-                        console.log('avgDelieryTimeList:', status.avgDeliveryTimeList);
-                        console.log('deliveredOrderList:', status.deliveredOrderList);
-                        console.log('downTimeList:', status.downTimeList);
-                    }, UPDATE_LIST_INTERVAL);
+    sqlMethods.sqlModeInit(connection, function(err, rows) {
+        sqlMethods.getPendingOrders(connection, function(err, rows) {
+            status.pendingOrders = Number(rows[0]['COUNT(*)']);
+            sqlMethods.getDeliveredOrders(connection, function(err, rows) {
+                status.deliveredOrders = Number(rows[0]['COUNT(*)']);
+                status.deliveredOrderList = [status.deliveredOrders];
+                sqlMethods.getPendingItems(connection, function(err, rows) {
+                    status.pendingItems = Number(rows[0]['COUNT(*)']);
+                    status.pendingOrderList = [status.pendingOrders];
+                    sqlMethods.getAvgDeliveryTime(connection, function(err, rows) {
+                        status.avgDeliveryTime = Number(rows[0]['AVG(TIMESTAMPDIFF(SECOND,`orderdate`,`filldate`))']);
+                        status.avgDeliveryTimeList = [status.avgDeliveryTime];
+                        updateListTimer = setInterval(function() {
+                            status.pendingOrderList.push(status.pendingOrders);
+                            status.avgDeliveryTimeList.push(status.avgDeliveryTime);
+                            status.deliveredOrderList.push(status.deliveredOrders);
+                            status.downTimeList.push(status.downTime);
+                            console.log(performance.now(), "");
+                            console.log('pendingOrderList:', status.pendingOrderList);
+                            console.log('avgDelieryTimeList:', status.avgDeliveryTimeList);
+                            console.log('deliveredOrderList:', status.deliveredOrderList);
+                            console.log('downTimeList:', status.downTimeList);
+                        }, UPDATE_LIST_INTERVAL);
+                    });
                 });
             });
         });
