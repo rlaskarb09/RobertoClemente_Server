@@ -55,6 +55,7 @@ var getList = document.getElementById('pendingList').innerText;
 var pendingOrderList = getList.split(',').map(Number);
 console.log(pendingOrderList);
 
+var nowbacklog = document.getElementById('backlog').innerText;
 var highBacklog = 0
 for (var i=0; i<pendingOrderList.length;i++){
     if (highBacklog < pendingOrderList[i]){
@@ -63,8 +64,10 @@ for (var i=0; i<pendingOrderList.length;i++){
         highBacklog = highBacklog;
     }
 };
+if (highBacklog < nowbacklog){
+    highBacklog = nowbacklog;
+}
 $('#highBacklog').text('Highest Backlog : ' + highBacklog);
-console.log(highBacklog);
 // get delivered list
 var getList = document.getElementById('deliveredList').innerText;
 var deliveredList = getList.split(',');

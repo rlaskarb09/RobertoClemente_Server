@@ -48,13 +48,13 @@ var highBacklog = 0
 for (var i=0; i<pendingOrderList.length;i++){
     if (highBacklog < pendingOrderList[i]){
         highBacklog = pendingOrderList[i];
-        if(highBacklog<nowbacklog){
-            highBacklog = nowbacklog;
-        }
     }else{
         highBacklog = highBacklog;
     }
 };
+if (highBacklog < nowbacklog){
+    highBacklog = nowbacklog;
+}
 $('#highBacklog').text('Highest Backlog : ' + highBacklog);
 console.log(highBacklog);
 
@@ -156,6 +156,7 @@ console.log(downtimeList);
 downtimeList = downtimeList.map(function(each_element){
     return Number(Math.round(each_element));
 })
+console.log(downtimeList);
 
 var timeChart = document.getElementById('timeChart').getContext("2d");
 
@@ -265,6 +266,9 @@ for(var i =0;i<w.length;i++){
     timeChart.moveTo(0, timech);
     timeChart.strokeStyle = '#FF1800';
     timeChart.lineWidth = 3;
+    if (downtimeList[i] > 300){
+        downtimeList[i] = 300;
+    }
     timeChart.lineTo(w[i], th2[downtimeList[i]]);
     timeChart.stroke();
 }

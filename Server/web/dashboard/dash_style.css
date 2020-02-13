@@ -43,7 +43,7 @@ span.backlog{
     font-family: serif;
     background-color : crimson;
     color:white;
-    font-weight: bold;
+    font-weight: 900;
     padding:5px;
 }
 span.throughput{
@@ -53,6 +53,7 @@ span.throughput{
 span.total{
     font-family: serif;
     color:rgb(0,70,42);
+    font-weight: bold;
 }
 span.redItem{
     color:white;

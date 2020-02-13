@@ -16,7 +16,7 @@ let ejs = require('ejs');
 var connection = mysql.createConnection({
     host: 'localhost',
     user: 'root',
-    password: 'Dltndk97!',
+    password: '',
     database: 'orderdb',
     debug: false
 });
@@ -514,7 +514,7 @@ app.ws('/robot', function(ws, req) {
                         console.log('Scheduled, running time:', scheduleEnd - scheduleStart);
                     });
                 }
-                else if (status.pendingItems >= 30 && !status.isAlreadyScheduled) {
+                else if (status.pendingItems >= 35 && !status.isAlreadyScheduled) {
                         var scheduleStart = performance.now();
                         getSchedule(function() {
                             var scheduleEnd = performance.now();
@@ -536,14 +536,18 @@ app.ws('/robot', function(ws, req) {
                     status.nextDeliveryItemIds = JSON.parse(JSON.stringify(status.nextNextDeliveryItemIds));
                     status.nextLoading = JSON.parse(JSON.stringify(status.nextNextLoading));
 
+                    var itemsOnRobot = [0, 0, 0];
                     for (schedule in status.deliverySchedule) {
                         status.itemsOnStop[0] -= status.deliverySchedule[schedule][1];
                         status.itemsOnStop[1] -= status.deliverySchedule[schedule][2];
                         status.itemsOnStop[2] -= status.deliverySchedule[schedule][3];
-                        status.itemsOnRobot[0] = status.deliverySchedule[schedule][1];
-                        status.itemsOnRobot[1] = status.deliverySchedule[schedule][2];
-                        status.itemsOnRobot[2] = status.deliverySchedule[schedule][3];
+                        itemsOnRobot[0] += status.deliverySchedule[schedule][1];
+                        itemsOnRobot[1] += status.deliverySchedule[schedule][2];
+                        itemsOnRobot[2] += status.deliverySchedule[schedule][3];
                     }
+                    status.itemsOnRobot[0] = itemsOnRobot[0];
+                    status.itemsOnRobot[1] = itemsOnRobot[1];
+                    status.itemsOnRobot[2] = itemsOnRobot[2];
                     console.log('status.itemsOnStop:', status.itemsOnStop);
                     console.log('status.itemsOnRobot:', status.itemsOnRobot);
 
