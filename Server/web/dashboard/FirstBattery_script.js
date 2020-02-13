@@ -58,23 +58,6 @@ if (highBacklog < nowbacklog){
 $('#highBacklog').text('Highest Backlog : ' + highBacklog);
 console.log(highBacklog);
 
-// $(document).ready(function(){
-//     var backloglist = pendingOrderList;
-//     setInterval(function(){
-//         var highBacklog = 0
-//         for(var i=0;i<backloglist.length;i++){
-//             if (highBacklog < backloglist[i]){
-//                 highBacklog = backloglist[i];
-//             } else{
-//                 highBacklog = highBacklog;
-//             }
-//         }
-//         $('#highBacklog').text('Highest Backlog : ' + highBacklog);
-//     },1);
-// });
-
-// calculate highest backlog
-
 // get delivered list
 var getList = document.getElementById('deliveredList').innerText;
 var deliveredList = getList.split(',');
